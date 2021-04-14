@@ -1,0 +1,75 @@
+# specify version of base container
+
+ARG DIGEST="sha256:2eac078be835b6b2311e6cf034ffef355c7addb41313f200dded9ed963055c43"
+
+ARG BASE_CONTAINER="jupyter/datascience-notebook@${DIGEST}"
+
+FROM "${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]"
+
+USER root
+
+
+# specify versions of Python libraries
+
+ARG VERSION_SCANPY="1.7.2"
+ARG VERSION_PRESTO="0.6.2"
+ARG VERSION_CHANGEO="1.0.2"
+
+
+# specify versions of R libraries
+
+ARG VERSION_ALAKAZAM="1.1.0"
+ARG VERSION_SHAZAM="1.0.2"
+ARG VERSION_TIGGER="1.0.0"
+ARG VERSION_SCOPER="1.1.0"
+
+
+# script to install R libraries
+
+ARG SCRIPT_R="install_R_pkgs.R"
+
+
+# variables listing R libraries
+
+ARG PKGS_R="c('alakazam','shazam','tigger','scoper')"
+
+
+# build 
+
+RUN pip install "scanpy[leiden]==${VERSION_SCANPY}"
+
+RUN pip install "presto==${VERSION_PRESTO}"
+
+RUN pip install "changeo==${VERSION_CHANGEO}"
+
+# run from within the same directory containing this Dockerfile
+
+COPY "${SCRIPT_R}" .
+
+# order of arguments must match order of pkgs in install_R_pkgs.R
+
+RUN Rscript "${SCRIPT_R}" \
+	"${VERSION_ALAKAZAM}" \
+	"${VERSION_SHAZAM}" \
+	"${VERSION_TIGGER}" \
+	"${VERSION_SCOPER}"
+
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+
+# build info
+
+ARG PATH_INFO="work/docker_build_info.txt"
+
+RUN date > "${PATH_INFO}" && \
+	python -V >> "${PATH_INFO}" && \
+	echo "Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
+	MaskPrimers.py --version >> "${PATH_INFO}" && \
+	MakeDb.py --version >> "${PATH_INFO}" && \
+	Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
+	Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
