@@ -11,3 +11,5 @@
 * Installs Immcantation dependencies on CRAN that are not part of `jupyter/datascience-notebook`: `optparse`, `BiocManager`
 * Installs Immcantation dependencies on BioConductor: `Biostrings`, `GenomicAlignments`, `IRanges`
 * During installation of `alakazam` etc., the fixed versions specified in `DockerFile_JZ_v1` are compared against the latest versions on CRAN. If unmatched, archived versions matching the fixed versions are pulled from archive.
+
+Approx. build time on MacBook Pro: 926.7s (896.8s for installation of R packages)
