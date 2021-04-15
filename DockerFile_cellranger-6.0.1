@@ -1,0 +1,31 @@
+# 20.04 is a LTS (long-term support) version
+
+FROM ubuntu:20.04
+
+LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+      description="Cell Ranger v6.0.1"
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    sudo \
+    wget
+
+# WORKDIR sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD
+# instructions that follow it
+
+WORKDIR /usr/src/
+
+ARG CR_NAME="cellranger-6.0.1"
+
+ARG CR_LINK="https://cf.10xgenomics.com/releases/cell-exp/cellranger-6.0.1.tar.gz?Expires=1618502835&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZi4xMHhnZW5vbWljcy5jb20vcmVsZWFzZXMvY2VsbC1leHAvY2VsbHJhbmdlci02LjAuMS50YXIuZ3oiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2MTg1MDI4MzV9fX1dfQ__&Signature=Es53hW1WRPpmx4oEnybbilhP-Ic~Kzl-s87YOa0s47AtFOXFlLlgwj1scJOM8c6FkbRN5UjaBt5RsktmeVu5WjuYm0S-okt1uoXFgQTT9MGrtzfkOG7~-7zJfcbDxta-pw1jk5j68VJ0Xkww03Yw8XrdA7j2g8-bJAd5csNhv98o9G0qA1SiE2PTSdG4mbjTRtWzi3DHoIFi6qB17RoIGTp1bQNqMF0wfSjZvNleTjAvVeujBvRzruJQ3cMibK74iIzBEDqYJtilnxpOfe1a8DW5d5S~Ow7mG9~46UJT9-7JEaVpcDiXQ6j4af3E7hvfGzGNFF4XuptMo~~hKj8rKw__&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA"
+
+RUN wget --no-check-certificate -O "${CR_NAME}.tar.gz" "${CR_LINK}" && \
+	tar -zxvf "${CR_NAME}.tar.gz" && \
+	rm "${CR_NAME}.tar.gz"
+
+ENV PATH="/usr/src/${CR_NAME}:${PATH}"
+
+# BM: 
+# Based on your compute solution, you might need to set compute environment 
+# variable to FALSE during scripting. This will allow the container to execute 
+# the ENV command and add cellranger to PATH.
