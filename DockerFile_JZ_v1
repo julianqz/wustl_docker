@@ -74,3 +74,6 @@ RUN date > "${PATH_INFO}" && \
 	MakeDb.py --version >> "${PATH_INFO}" && \
 	Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
 	Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
+
+# LSF system needs this
+ENTRYPOINT ["/bin/sh"]
