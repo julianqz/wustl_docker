@@ -1,0 +1,9 @@
+# 20.04 is a LTS (long-term support) version
+
+FROM ubuntu:20.04
+
+LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+      description="Minimal ubuntu with /bin/sh for LSF"
+
+# LSF system needs this
+ENTRYPOINT ["/bin/sh"]
