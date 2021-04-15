@@ -23,6 +23,9 @@ RUN wget --no-check-certificate -O "${CR_NAME}.tar.gz" "${CR_LINK}" && \
 	tar -zxvf "${CR_NAME}.tar.gz" && \
 	rm "${CR_NAME}.tar.gz"
 
+# LSF system needs this
+ENTRYPOINT ["/bin/sh"]
+
 ENV PATH="/usr/src/${CR_NAME}:${PATH}"
 
 # BM: 
