@@ -3,7 +3,7 @@
 FROM ubuntu:20.04
 
 LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
-      description="Minimal ubuntu with /bin/sh for LSF"
+      description="Minimal ubuntu"
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
@@ -11,6 +11,3 @@ RUN apt-get update && \
     wget \
     tree \
     less
-
-# LSF system needs this
-ENTRYPOINT ["/bin/sh"]
