@@ -1,0 +1,53 @@
+# specify version of base container
+
+ARG DIGEST="sha256:2eac078be835b6b2311e6cf034ffef355c7addb41313f200dded9ed963055c43"
+
+ARG BASE_CONTAINER="jupyter/datascience-notebook@${DIGEST}"
+
+FROM "${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+      description="Base image built on jupyter/datascience-notebook \
+      with alakazam and additional R dependencies."
+
+USER root
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    tree \
+    less
+
+# specify version of alakazam
+
+ARG VERSION_ALAKAZAM="1.1.0"
+
+# variables listing R libraries
+
+ARG PKGS_R="c('alakazam', 'BiocManager', 'Biostrings', 'GenomicAlignments', 'IRanges')"
+
+# script to install R dependencies and alakazam
+
+ARG SCRIPT_R="wu_base_r.R"
+
+# run from within the same directory containing this Dockerfile
+
+COPY "${SCRIPT_R}" .
+
+# install R dependencies and alakazam
+# ~760s
+
+RUN Rscript "${SCRIPT_R}" "${VERSION_ALAKAZAM}" && rm "${SCRIPT_R}"
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+
+# build info
+
+ARG PATH_INFO="work/docker_build_info.txt"
+
+RUN date > "${PATH_INFO}" && \
+	python -V >> "${PATH_INFO}" && \
+	Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
+	Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
