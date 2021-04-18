@@ -9,6 +9,16 @@ LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
 
 USER root
 
+
+# for igphyml
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    automake \
+    libblas-dev \
+    liblapack-dev \
+    libatlas-base-dev
+
+
 # R pkgs to install
 
 ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat')"
@@ -69,18 +79,20 @@ RUN pip install "scanpy==${VERSION_SCANPY}"
 
 
 # install igphyml
-#RUN wget -q --show-progress --no-check-certificate \
-#    https://bitbucket.org/kleinstein/igphyml/get/${VERSION_IGPHYML}.tar.gz -O igphyml-${VERSION_IGPHYML}.tar.gz \
-#    && mkdir -p /usr/local/share/igphyml \
-#    && tar -zxf igphyml-${VERSION_IGPHYML}.tar.gz -C /usr/local/share/igphyml --strip-components 1 \
-#    && (cd /usr/local/share/igphyml && ./make_phyml_blas_omp) \
-#    && rm -r igphyml-${VERSION_IGPHYML}.tar.gz
+RUN wget -q --show-progress --no-check-certificate \
+    https://bitbucket.org/kleinstein/igphyml/get/${VERSION_IGPHYML}.tar.gz -O igphyml-${VERSION_IGPHYML}.tar.gz \
+    && mkdir -p /usr/local/share/igphyml \
+    && tar -zxf igphyml-${VERSION_IGPHYML}.tar.gz -C /usr/local/share/igphyml --strip-components 1 \
+    && (cd /usr/local/share/igphyml && ./make_phyml_blas_omp) \
+    && rm -r igphyml-${VERSION_IGPHYML}.tar.gz
+
 
 # install phylip
 RUN wget -q --show-progress --no-check-certificate \
     http://evolution.gs.washington.edu/phylip/download/phylip-${VERSION_PHYLIP}.tar.gz \
     && tar -zxf phylip-${VERSION_PHYLIP}.tar.gz \
     && (cd phylip-${VERSION_PHYLIP}/src && make -f Makefile.unx install CFLAGS='-fcommon') \
+    && mkdir -p /usr/local/bin/phylip \
     && mv phylip-${VERSION_PHYLIP}/exe/* /usr/local/bin/phylip \
     && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
 
