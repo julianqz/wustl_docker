@@ -3,7 +3,7 @@
 FROM ubuntu:20.04
 
 LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
-      description="Cell Ranger v6.0.1"
+      description="Cell Ranger v6.0.1 for LSF"
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
