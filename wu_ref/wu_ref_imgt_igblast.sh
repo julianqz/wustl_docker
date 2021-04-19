@@ -50,7 +50,7 @@ cd "${PATH_DB}"
 
 for SPECIES in Homo_sapiens Mus_musculus; do 
 
-    # TODO: generalize to any species present in ${GERMDIR}
+    # TODO: generalize to any species present in ${PATH_GERM}
 
     if [[ ${SPECIES} == "Homo_sapiens" ]]; then
         SP="hs"

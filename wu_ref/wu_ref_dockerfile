@@ -27,12 +27,12 @@ COPY "../../../../common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_
 #*
 ARG VERSION_IGBLAST_1="1.17.1"
 
-#* Compared to immcantation suite dockerfile:
-#* 1) Files in ncbi-igblast-[version]/bin are no longer moved to /usr/local/bin
-#*    Instead, ncbi-igblast-[version]/bin is moved, as a folder, to /usr/local/bin/igblast-[version]
-#* 2) fetch_igblast.sh is no longer run
-#*    Instead, an empty database/ is created
-#* 3) igblast version is noted
+# Compared to immcantation suite dockerfile:
+# 1) Files in ncbi-igblast-[version]/bin are no longer moved to /usr/local/bin
+#    Instead, ncbi-igblast-[version]/bin is moved, as a folder, to /usr/local/bin/igblast-[version]
+# 2) fetch_igblast.sh is no longer run
+#    Instead, an empty database/ is created
+# 3) igblast version is noted
 
 RUN wget -q --show-progress --no-check-certificate \
     ftp://ftp.ncbi.nih.gov/blast/executables/igblast/release/${VERSION_IGBLAST_1}/ncbi-igblast-${VERSION_IGBLAST_1}-x64-linux.tar.gz \
