@@ -118,11 +118,13 @@ USER "${NB_UID}"
 
 ARG PATH_INFO="work/docker_build_info.txt"
 
-RUN date > "${PATH_INFO}" && \
-    python -V >> "${PATH_INFO}" && \
+# printing version for presto too even tho not explicitly installed (required by changeo)
+
+RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
+    MaskPrimers.py --version >> "${PATH_INFO}" && \
     MakeDb.py --version >> "${PATH_INFO}" && \
     echo "Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
     echo "PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
     echo "IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
-    Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
     Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"

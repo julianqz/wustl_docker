@@ -47,7 +47,8 @@ USER "${NB_UID}"
 
 ARG PATH_INFO="work/docker_build_info.txt"
 
-RUN date > "${PATH_INFO}" && \
+RUN echo "--- wu_base ---" > "${PATH_INFO}" && \
+	date >> "${PATH_INFO}" && \
 	python -V >> "${PATH_INFO}" && \
 	Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
 	Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"

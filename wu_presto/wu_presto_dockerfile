@@ -104,12 +104,11 @@ USER "${NB_UID}"
 
 ARG PATH_INFO="work/docker_build_info.txt"
 
-RUN date > "${PATH_INFO}" && \
-    python -V >> "${PATH_INFO}" && \
+RUN echo "--- wu_presto ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
     MaskPrimers.py --version >> "${PATH_INFO}" && \
     echo "blast: ${VERSION_BLAST}" >> "${PATH_INFO}" && \
     echo "muscle: ${VERSION_MUSCLE}" >> "${PATH_INFO}" && \
     echo "vsearch: ${VERSION_VSEARCH}" >> "${PATH_INFO}" && \
     echo "cd-hit: ${VERSION_CDHIT}" >> "${PATH_INFO}" && \
-    Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
     Rscript -e "versions::installed.versions(pkgs='prestor')" >> "${PATH_INFO}"
