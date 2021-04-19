@@ -1,0 +1,59 @@
+# Specify version of base container 
+# via `--build-arg <varname>=<value>` on command line
+# Either `wu_presto:main` or `wu_cimm:main`
+
+ARG BASE_CONTAINER
+
+FROM "julianqz/${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="julianqz/${BASE_CONTAINER} plus IgBLAST and IMGT references."
+
+
+# add IMGT references downloaded via `wu_ref_imgt_get.sh`
+# remove duplicates via `wu_ref_imgt_dedup.R`
+# /usr/local/share/germline_refs/imgt_select
+
+#*
+ARG VERSION_IMGT_1="202113-2"
+COPY "../../../../common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
+     "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
+
+
+# install igblast
+# executables: /usr/local/bin/igblast-${version}/bin
+# optional_file, internal_data, database: /usr/local/share/germline_refs/igblast-${version}
+
+#*
+ARG VERSION_IGBLAST_1="1.17.1"
+
+#* Compared to immcantation suite dockerfile:
+#* 1) Files in ncbi-igblast-[version]/bin are no longer moved to /usr/local/bin
+#*    Instead, ncbi-igblast-[version]/bin is moved, as a folder, to /usr/local/bin/igblast-[version]
+#* 2) fetch_igblast.sh is no longer run
+#*    Instead, an empty database/ is created
+#* 3) igblast version is noted
+
+RUN wget -q --show-progress --no-check-certificate \
+    ftp://ftp.ncbi.nih.gov/blast/executables/igblast/release/${VERSION_IGBLAST_1}/ncbi-igblast-${VERSION_IGBLAST_1}-x64-linux.tar.gz \
+    && tar -zxf ncbi-igblast-${VERSION_IGBLAST_1}-x64-linux.tar.gz \
+    && mkdir -p /usr/local/bin/igblast-${VERSION_IGBLAST_1} \
+    && mv ncbi-igblast-${VERSION_IGBLAST_1}/bin /usr/local/bin/igblast-${VERSION_IGBLAST_1} \
+    && mkdir -p /usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database \
+    && mv ncbi-igblast-${VERSION_IGBLAST_1}/internal_data ncbi-igblast-${VERSION_IGBLAST_1}/optional_file /usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1} \
+    && rm -r ncbi-igblast-${VERSION_IGBLAST_1}-x64-linux.tar.gz ncbi-igblast-${VERSION_IGBLAST_1}
+
+
+# make igblast databases
+
+ARG SCRIPT_DB="wu_ref_imgt_igblast.sh"
+COPY "${SCRIPT_DB}" .
+
+RUN "${SCRIPT_DB}" \
+    -i "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
+    -v "${VERSION_IMGT_1}" \
+    -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
+    -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin"
+
+RUN rm "${SCRIPT_DB}"
+
