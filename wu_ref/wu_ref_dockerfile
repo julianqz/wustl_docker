@@ -9,6 +9,7 @@ FROM "julianqz/${BASE_CONTAINER}"
 LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
       description="julianqz/${BASE_CONTAINER} plus IgBLAST and IMGT references."
 
+USER root
 
 # add IMGT references downloaded via `wu_ref_imgt_get.sh`
 # remove duplicates via `wu_ref_imgt_dedup.R`
@@ -16,7 +17,7 @@ LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
 
 #*
 ARG VERSION_IMGT_1="202113-2"
-COPY "../../../../common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
+COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
      "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
 
 
@@ -47,13 +48,27 @@ RUN wget -q --show-progress --no-check-certificate \
 # make igblast databases
 
 ARG SCRIPT_DB="wu_ref_imgt_igblast.sh"
-COPY "${SCRIPT_DB}" .
+COPY "wustl/code/docker/wu_ref/${SCRIPT_DB}" .
 
-RUN "${SCRIPT_DB}" \
+RUN "./${SCRIPT_DB}" \
     -i "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
     -v "${VERSION_IMGT_1}" \
     -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
     -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin"
 
 RUN rm "${SCRIPT_DB}"
+
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+# build info
+
+ARG PATH_INFO="work/docker_build_info.txt"
+
+RUN echo "--- wu_ref ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
+    echo "IMGT references: release${VERSION_IMGT_1}" >> "${PATH_INFO}" && \
+    echo $(/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin/igblastn -version | head -n 1) >> "${PATH_INFO}"
 
