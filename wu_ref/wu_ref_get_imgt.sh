@@ -68,6 +68,7 @@ TXT=$(cat "${PATH_SAVE_ZIP}/${NAME_TXT}")
 
 # parse .txt for just the version number
 # ${string%%substring}: deletes longest match of $substring from back of $string
+# e.g. "202113-2"
 VER=$(echo ${TXT%% (*})
 echo "Latest version: ${VER}. Do manually confirm that this is correct."
 
@@ -78,14 +79,15 @@ rm "${PATH_SAVE_ZIP}/${NAME_TXT}"
 
 # .zip to be downloaded
 # e.g. IMGT_vquest_release202113-2.zip
-NAME_ZIP_VER="IMGT_vquest_${VER}.zip"
+NAME_ZIP_VER="IMGT_vquest_release${VER}.zip"
 
 # name of folder that .zip is to be unzippped into
 # e.g. IMGT_vquest_release202113-2
-NAME_UNZIP_VER="IMGT_vquest_${VER}"
+NAME_UNZIP_VER="IMGT_vquest_release${VER}"
 
 
 # only proceed if neither NAME_ZIP_VER nor NAME_UNZIP_VER exists
+
 if [[ ! (-s "${PATH_SAVE_ZIP}/${NAME_ZIP_VER}") && ! (-d "${PATH_SAVE_UNZIP}/${NAME_UNZIP_VER}") ]]; then
 	
 	##### download .zip & rename with version
@@ -137,7 +139,7 @@ if [[ ! (-s "${PATH_SAVE_ZIP}/${NAME_ZIP_VER}") && ! (-d "${PATH_SAVE_UNZIP}/${N
 	fi
 
 
-	echo "Finished downloading IMGT reference ${VER}."
+	echo "Finished downloading IMGT reference release${VER}."
 
 else
 	echo "${NAME_ZIP_VER} and/or ${NAME_UNZIP_VER}/ already exists. Skipped."
