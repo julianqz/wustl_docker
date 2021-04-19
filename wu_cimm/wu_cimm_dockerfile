@@ -75,7 +75,7 @@ RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
 
 RUN pip install "changeo==${VERSION_CHANGEO}"
 
-RUN pip install "scanpy==${VERSION_SCANPY}"
+RUN pip install "scanpy[leiden]==${VERSION_SCANPY}"
 
 
 # install igphyml
