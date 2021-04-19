@@ -4,6 +4,10 @@
 # Author:  Jason Anthony Vander Heiden, Gur Yaari, Namita Gupta
 # Date:    2018.09.15
 # 
+# Adapted by Julian Q Zhou, 2021-04-19
+# Modifications are marked by "#*JZ"
+#
+#
 # Arguments:
 #   -1  Read 1 FASTQ sequence file (sequence beginning with the C-region or J-segment).
 #   -2  Read 2 FASTQ sequence file (sequence beginning with the leader or V-segment).
@@ -30,26 +34,27 @@
 print_usage() {
     echo -e "Usage: `basename $0` [OPTIONS]"
     echo -e "  -1  Read 1 FASTQ sequence file.\n" \
-            "     Sequence beginning with the C-region or J-segment)."
+            "      Sequence beginning with the C-region or J-segment)."
     echo -e "  -2  Read 2 FASTQ sequence file.\n" \
-            "     Sequence beginning with the leader or V-segment)."
+            "      Sequence beginning with the leader or V-segment)."
     echo -e "  -j  Read 1 FASTA primer sequences.\n" \
-            "     Defaults to /usr/local/share/protocols/AbSeq/AbSeq_R1_Human_IG_Primers.fasta."
+            "      Defaults to /usr/local/share/protocols/AbSeq/AbSeq_R1_Human_IG_Primers.fasta."
     echo -e "  -v  Read 2 FASTA primer or template switch sequences.\n" \
-            "     Defaults to /usr/local/share/protocols/AbSeq/AbSeq_R2_TS.fasta."
+            "      Defaults to /usr/local/share/protocols/AbSeq/AbSeq_R2_TS.fasta."
     echo -e "  -c  C-region FASTA sequences for the C-region internal to the primer.\n" \
-            "     If unspecified internal C-region alignment is not performed."
+            "      If unspecified internal C-region alignment is not performed."
     echo -e "  -r  V-segment reference file.\n" \
-            "     Defaults to /usr/local/share/igblast/fasta/imgt_human_ig_v.fasta."
+            "      Defaults to /usr/local/share/igblast/fasta/imgt_human_ig_v.fasta."
     echo -e "  -y  YAML file providing description fields for report generation."
     echo -e "  -n  Sample identifier which will be used as the output file prefix.\n" \
-            "     Defaults to a truncated version of the read 1 filename."
+            "      Defaults to a truncated version of the read 1 filename."
     echo -e "  -o  Output directory. Will be created if it does not exist.\n" \
-            "     Defaults to a directory matching the sample identifier in the current working directory."
+            "      Defaults to a directory matching the sample identifier in the current working directory."
     echo -e "  -x  The mate-pair coordinate format of the raw data.\n" \
-            "     Defaults to illumina."
+            "      Defaults to illumina."
     echo -e "  -p  Number of subprocesses for multiprocessing tools.\n" \
-            "     Defaults to the available cores."
+            "      Defaults to the available cores."
+    echo -e "  -t  Path to Python script removing inconsistent C primer and internal C alignments." #*JZ
     echo -e "  -h  This message."
 }
 
@@ -67,7 +72,7 @@ NPROC_SET=false
 COORD_SET=false
 
 # Get commandline arguments
-while getopts "1:2:j:v:c:r:y:n:o:x:p:h" OPT; do
+while getopts "1:2:j:v:c:r:y:n:o:x:p:t:h" OPT; do
     case "$OPT" in
     1)  R1_READS=$OPTARG
         R1_READS_SET=true
@@ -102,6 +107,8 @@ while getopts "1:2:j:v:c:r:y:n:o:x:p:h" OPT; do
     p)  NPROC=$OPTARG
         NPROC_SET=true
         ;;
+    t)  PATH_SCRIPT_INCONSISTENT=$(realpath "${OPTARG}") #*
+        ;;                                        #*
     h)  print_usage
         exit
         ;;
@@ -222,12 +229,13 @@ else
 fi
 
 # Define pipeline steps
-ZIP_FILES=true
-DELETE_FILES=true
+ZIP_FILES=false           #*JZ
+DELETE_FILES=false        #*JZ
 FILTER_LOWQUAL=true
 ALIGN_SETS=false
 MASK_LOWQUAL=false
-REPORT=true
+REPORT=true               
+REMOVE_INCONSISTENT=true  #*JZ 
 
 # FilterSeq run parameters
 FS_QUAL=20
@@ -440,6 +448,32 @@ if $ALIGN_CREGION; then
     check_error
 else
     CREGION_FIELD=""
+fi
+
+
+#*JZ next block
+if $ALIGN_CREGION; then
+    if $REMOVE_INCONSISTENT; then
+        
+        # outputs:
+        # ${OUTNAME}-CR_primers-pass_consistent.fastq
+        # ${OUTNAME}-CR_primers-pass_inconsistent.fastq (if any)
+        # ${OUTNAME}-CR_primers-pass_inconsistent_count.txt (if any)
+
+        # ${PH_FILE} expected to be ${OUTNAME}-CR_primers-pass.fastq
+        python3 "${PATH_SCRIPT_INCONSISTENT}" "${PH_FILE}"
+            
+        COUNT_FASTQ=`grep -c 'CONSCOUNT' ${OUTNAME}-CR_primers-pass_consistent.fastq`
+        echo -e "consistent PRCONS and CREGION: ${COUNT_FASTQ}" 
+
+        if [[ (-s "${OUTNAME}-CR_primers-pass_inconsistent.fastq") ]]; then
+            COUNT_FASTQ=`grep -c 'CONSCOUNT' ${OUTNAME}-CR_primers-pass_inconsistent.fastq`
+            echo -e "inconsistent PRCONS and CREGION: ${COUNT_FASTQ}"
+        fi
+
+        PH_FILE="${OUTNAME}-CR_primers-pass_consistent.fastq"
+
+    fi
 fi
 
 
