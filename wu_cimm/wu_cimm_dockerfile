@@ -81,9 +81,9 @@ RUN pip install "scanpy[leiden]==${VERSION_SCANPY}"
 # install igphyml
 RUN wget -q --show-progress --no-check-certificate \
     https://bitbucket.org/kleinstein/igphyml/get/${VERSION_IGPHYML}.tar.gz -O igphyml-${VERSION_IGPHYML}.tar.gz \
-    && mkdir -p /usr/local/share/igphyml \
-    && tar -zxf igphyml-${VERSION_IGPHYML}.tar.gz -C /usr/local/share/igphyml --strip-components 1 \
-    && (cd /usr/local/share/igphyml && ./make_phyml_blas_omp) \
+    && mkdir -p /usr/local/bin/igphyml \
+    && tar -zxf igphyml-${VERSION_IGPHYML}.tar.gz -C /usr/local/bin/igphyml --strip-components 1 \
+    && (cd /usr/local/bin/igphyml && ./make_phyml_blas_omp) \
     && rm -r igphyml-${VERSION_IGPHYML}.tar.gz
 
 
@@ -96,6 +96,7 @@ RUN wget -q --show-progress --no-check-certificate \
     && mv phylip-${VERSION_PHYLIP}/exe/* /usr/local/bin/phylip \
     && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
 
+
 # install tbl2asn
 RUN wget -q --show-progress --no-check-certificate \
     ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/linux64.tbl2asn.gz \
@@ -106,7 +107,7 @@ RUN wget -q --show-progress --no-check-certificate \
 
 # Setup environment
 
-ENV PATH="${PATH}:/usr/local/share/igphyml/src"
+ENV PATH="${PATH}:/usr/local/bin/phylip:/usr/local/bin/igphyml/src"
 
 
 # Switch back to jovyan to avoid accidental container runs as root
@@ -122,9 +123,15 @@ ARG PATH_INFO="work/docker_build_info.txt"
 
 RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     date >> "${PATH_INFO}" && \
+    echo "- presto:" >> "${PATH_INFO}" && \
     MaskPrimers.py --version >> "${PATH_INFO}" && \
+    echo "- changeo:" >> "${PATH_INFO}" && \
     MakeDb.py --version >> "${PATH_INFO}" && \
-    echo "Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
-    echo "PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
-    echo "IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
+    echo "- Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
+    echo "- PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
+    echo "  " $(which dnapars) >> "${PATH_INFO}" && \
+    echo "- IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
+    echo "  " $(which igphyml) >> "${PATH_INFO}" && \
+    echo "- tbl2asn:" >> "${PATH_INFO}" && \
+    echo "  " $(which tbl2asn) >> "${PATH_INFO}" && \
     Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
