@@ -6,6 +6,9 @@
 # Author:  Susanna Marquez
 # Date:    2018.03.19
 #
+# Adapted by Julian Q Zhou, 2021-04-20
+#
+#
 # Arguments:
 #   -s  FASTQ sequence file.
 #   -r  Directory containing phiX174 reference db.
@@ -22,13 +25,12 @@ print_usage() {
     echo -e "Usage: `basename $0` [OPTIONS]"
     echo -e "  -s   FASTQ sequence file."
     echo -e "  -r   Directory containing phiX174 reference db.\n" \
-            "      Defaults to /usr/local/share/phix."
-    echo -e "  -n   Sample identifier which will be used as the output file prefix.\n" \
-            "      Defaults to a truncated version of the input filename."
-    echo -e "  -o  Output directory. Will be created if it does not exist.\n" \
-            "     Defaults to a directory matching the sample identifier in the current working directory."
+            "       Defaults to /usr/local/share/phix."
+    echo -e "  -n   Sample identifier which will be used as the output file prefix. Required." #*JZ
+    echo -e "  -o   Output directory. Required." #*JZ
     echo -e "  -p   Number of subprocesses for multiprocessing tools.\n" \
-            "      Defaults to the available cores."
+            "       Defaults to the available cores."
+    echo -e "  -t   Path to fastq2fasta.py." #*JZ
     echo -e "  -h   This message."
 }
 
@@ -44,23 +46,25 @@ NPROC_SET=false
 BLAST="blastn"
 
 # Get commandline arguments
-while getopts "s:r:n:o:p:h" OPT; do
-    case "$OPT" in
-    s)  READS=$OPTARG
+while getopts "s:r:n:o:p:t:h" OPT; do #*JZ
+    case "${OPT}" in
+    s)  READS="${OPTARG}"
         READS_SET=true
         ;;
-    r)  PHIXDIR=$OPTARG
+    r)  PHIXDIR=$(realpath "${OPTARG}") #*JZ
         PHIXDIR_SET=true
         ;;
-    n)  OUTNAME=$OPTARG
+    n)  OUTNAME="${OPTARG}"
         OUTNAME_SET=true
         ;;
-    o)  OUTDIR=$OPTARG
+    o)  OUTDIR=$(realpath "${OPTARG}") #*JZ
         OUTDIR_SET=true
         ;;
-    p)  NPROC=$OPTARG
+    p)  NPROC="${OPTARG}"
         NPROC_SET=true
         ;;
+    t)  PATH_SCRIPT_Q2A=$(realpath "${OPTARG}") #*JZ
+        ;;                                      #*JZ
     h)  print_usage
         exit
         ;;
@@ -103,13 +107,17 @@ fi
 
 # Set output name
 if ! ${OUTNAME_SET}; then
-     #OUTNAME=$(basename ${READS} | sed 's/.fastq/_nophix/')
-     OUTNAME=$(basename ${READS} | sed 's/.fastq//')
+    #OUTNAME=$(basename ${READS} | sed 's/.fastq/_nophix/')
+    #OUTNAME=$(basename ${READS} | sed 's/.fastq//') #*JZ
+    echo -e "You must specify the outname using the -n option." >&2 #*JZ
+    exit 1 #*JZ
 fi
 
 # Set output directory
 if ! ${OUTDIR_SET}; then
-    OUTDIR=${OUTNAME}
+    #OUTDIR=${OUTNAME} #*JZ
+    echo -e "You must specify the output directory using the -o option." >&2 #*JZ
+    exit 1 #*JZ
 fi
 
 # Check output directory permissions
@@ -135,9 +143,9 @@ fi
 mkdir -p ${OUTDIR}; cd ${OUTDIR}
 
 # Define log files
-LOGDIR="logs"
-PIPELINE_LOG="${LOGDIR}/pipeline-phix.log"
-ERROR_LOG="${LOGDIR}/pipeline-phix.err"
+LOGDIR="${OUTDIR}/logs"                               #*JZ added ${OUTDIR}
+PIPELINE_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.log" #*JZ
+ERROR_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.err".   #*JZ
 mkdir -p ${LOGDIR}
 echo '' > $PIPELINE_LOG
 echo '' > $ERROR_LOG
@@ -167,7 +175,7 @@ STEP=0
 # Remove all-N sequence becase blastn crashes with all N sequences)
 printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "Removing all N sequences"
 echo -e "       START> awk" >> $PIPELINE_LOG
-NO_N_READS="${OUTNAME}_clean-missing.fastq"
+NO_N_READS="${OUTDIR}/${OUTNAME}_no-all-N.fastq" #*JZ added ${OUTDIR}; renamed
 awk '{y= i++ % 4 ; L[y]=$0; if(y==3 && L[1] ~ /[^N]/) {printf("%s\n%s\n%s\n%s\n",L[0],L[1],L[2],L[3]);}}' ${READS} \
     > ${NO_N_READS} 2> $ERROR_LOG
 
@@ -183,31 +191,46 @@ else
    rm $NO_N_READS
 fi
    
-echo -e "  INPUT_SIZE> ${INPUT_SIZE}" >> $PIPELINE_LOG
-echo -e " OUTPUT_SIZE> ${OUTPUT_SIZE}" >> $PIPELINE_LOG
-echo -e "REMOVED_SEQS> ${REMOVED_SEQS}" >> $PIPELINE_LOG
-echo -e "  READS_FILE> ${READS}\n" >> $PIPELINE_LOG
+#*JZ added clarity
+echo -e "          INPUT_SIZE> ${INPUT_SIZE}" >> $PIPELINE_LOG
+echo -e "REMOVED DUE TO ALL-N> ${REMOVED_SEQS}" >> $PIPELINE_LOG
+echo -e "       WITHOUT ALL-N> ${OUTPUT_SIZE}" >> $PIPELINE_LOG
+echo -e "     RUN THRU BLASTN> ${CONERT_FILE}\n" >> $PIPELINE_LOG
 
-# Convert headers to presto format
-printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ConvertHeaders"
-ConvertHeaders.py illumina -s ${CONVERT_FILE} --outdir ${OUTDIR} --outname ${OUTNAME} --fasta \
-    >> $PIPELINE_LOG 2> $ERROR_LOG
-FASTA_FILE="${OUTNAME}_convert-pass.fasta"
-check_error
+#*JZ commented out whole block
+# Convert headers to presto format and fastq to fasta
+#printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ConvertHeaders"
+#ConvertHeaders.py illumina -s ${CONVERT_FILE} --outdir ${OUTDIR} --outname ${OUTNAME} --fasta \
+#    >> $PIPELINE_LOG 2> $ERROR_LOG
+#FASTA_FILE="${OUTNAME}_convert-pass.fasta"
+#check_error
+
+#* JZ added next block
+# Convert to fasta if not fasta already (presto-abseq.sh takes fastq but blastn takes fasta)
+BASE_NAME=$(basename ${CONVERT_FILE})
+EXT_NAME=${BASE_NAME##*.}
+if [ "${EXT_NAME,,}" == "fastq" ] || [ "${EXT_NAME,,}" == "fq" ]; then
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "Converting to FASTA"
+    FASTA_FILE=$("${PATH_SCRIPT_Q2A}" ${CONVERT_FILE})
+else
+    FASTA_FILE=${CONVERT_FILE}
+fi
+
 
 # Run blastn
+#*JZ added ${OUTDIR} to -out
 BLAST_CMD="${BLAST} \
      -query ${FASTA_FILE} \
      -db ${PHIXDB} \
      -outfmt '6 std qseq sseq btop' \
-     -out ${OUTNAME}_phix.fmt6 \
+     -out ${OUTDIR}/${OUTNAME}_phix.fmt6 \
      -num_threads ${NPROC}"
 
 printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "BLASTN"
 echo -e "   START> blastn" >> $PIPELINE_LOG
 echo -e "    FILE> $(basename ${FASTA_FILE}) \n" >> $PIPELINE_LOG
 echo -e "PROGRESS> [Running]" >> $PIPELINE_LOG
-eval ${BLAST_CMD} >> $PIPELINE_LOG 2> $ERROR_LOG
+eval "${BLAST_CMD}" >> $PIPELINE_LOG 2> $ERROR_LOG #*JZ added quotes
 echo -e "PROGRESS> [Done   ]\n" >> $PIPELINE_LOG
 echo -e "  OUTPUT> ${OUTNAME}_phix.fmt6" >> $PIPELINE_LOG
 echo -e "     END> blastn\n" >> $PIPELINE_LOG
@@ -215,21 +238,24 @@ check_error
 
 # Add header, need ID column name for Splitseq
 printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "Add header"
-sed -i '1iID' "${OUTNAME}_phix.fmt6"
-ID_FILE="${OUTNAME}_phixhits.txt"
-sed -r '2,$ s/(^[^\|]*).*/\1/' "${OUTNAME}_phix.fmt6" > ${ID_FILE}
+sed -i '1iID' "${OUTDIR}/${OUTNAME}_phix.fmt6" #*JZ added ${OUTDIR}
+ID_FILE="${OUTDIR}/${OUTNAME}_phixhits.txt"    #*JZ added ${OUTDIR}
+sed -r '2,$ s/(^[^\|]*).*/\1/' "${OUTDIR}/${OUTNAME}_phix.fmt6" > ${ID_FILE} #*JZ added ${OUTDIR}
 
 # Filter input fasta/q to names not in the .fmt6 file
 printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "SplitSeq select"
-SplitSeq.py select -s ${READS} -f ID -t ${ID_FILE} --not --outdir ${OUTDIR} --outname ${OUTNAME} \
+#*JZ replaced -s ${READS} with ${CONVERT_FILE} (if a sequence has all N, no need for keeping it anyways)
+#*JZ added "_nophix" to --outname 
+SplitSeq.py select -s ${CONVERT_FILE} -f ID -t ${ID_FILE} --not --outdir ${OUTDIR} --outname ${OUTNAME}_nophix \
     >> $PIPELINE_LOG 2> $ERROR_LOG
 check_error
 
+#* JZ commented out whole block
 # Remove temporary files
-rm $FASTA_FILE
-if [ ${REMOVED_SEQS} -gt 0 ]; then
-   rm $NO_N_READS
-fi
+#rm $FASTA_FILE
+#if [ ${REMOVED_SEQS} -gt 0 ]; then
+#   rm $NO_N_READS
+#fi
 
 # End
 printf "DONE\n\n"
