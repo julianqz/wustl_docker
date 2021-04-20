@@ -11,12 +11,12 @@ USER root
 
 
 # script to fetch phix
+# "."" is /home/jovyan
 
 ARG SCRIPT_PHIX="fetch_phix.sh"
 COPY "./scripts/${SCRIPT_PHIX}" .
 
 # script to install prestor
-# ~280s
 
 ARG SCRIPT_R="wu_presto_r.R"
 COPY "${SCRIPT_R}" .
@@ -34,13 +34,8 @@ ARG VERSION_MUSCLE="3.8.425"
 ARG VERSION_VSEARCH="2.13.6"
 
 
-# Download and build phix
-
-RUN "./${SCRIPT_PHIX}" -o /usr/local/share/phix && rm "${SCRIPT_PHIX}"
-
-
 # Install prestor
-# ~51s
+# ~60s
 
 RUN Rscript "${SCRIPT_R}" && rm "${SCRIPT_R}"
 
@@ -73,6 +68,8 @@ RUN wget -q --show-progress --no-check-certificate \
     && mv ncbi-blast-${VERSION_BLAST}+/bin /usr/local/bin/blast \
     && rm -r ncbi-blast-${VERSION_BLAST}+-x64-linux.tar.gz ncbi-blast-${VERSION_BLAST}+
 
+ENV PATH="${PATH}:/usr/local/bin/blast"
+
 # Install muscle
 
 RUN wget -q --show-progress --no-check-certificate \
@@ -90,6 +87,18 @@ RUN wget -q --show-progress --no-check-certificate \
     && ln -s /usr/local/bin/vsearch /usr/local/bin/usearch \
     && rm -r vsearch-${VERSION_VSEARCH}-linux-x86_64.tar.gz vsearch-${VERSION_VSEARCH}-linux-x86_64
 
+
+# Download and build phix blast db
+# This should be run AFTER BLAST is installed AND added to PATH
+# There should be a blast db created in /usr/local/share/phix (.n*)
+# Need to mkdir -p and cd first because fetch_phix.sh calls makeblastdb at current dir
+
+RUN mkdir -p /usr/local/share/phix \
+    && cd /usr/local/share/phix \
+    && "/home/jovyan/${SCRIPT_PHIX}" -o /usr/local/share/phix \
+    && rm "/home/jovyan/${SCRIPT_PHIX}"
+
+
 # Install presto
 
 RUN pip install "presto==${VERSION_PRESTO}"
@@ -102,13 +111,19 @@ USER "${NB_UID}"
 
 # build info
 
-ARG PATH_INFO="work/docker_build_info.txt"
+ARG PATH_INFO="/home/jovyan/work/docker_build_info.txt"
 
 RUN echo "--- wu_presto ---" >> "${PATH_INFO}" && \
     date >> "${PATH_INFO}" && \
+    echo "- presto" >> "${PATH_INFO}" && \
     MaskPrimers.py --version >> "${PATH_INFO}" && \
-    echo "blast: ${VERSION_BLAST}" >> "${PATH_INFO}" && \
-    echo "muscle: ${VERSION_MUSCLE}" >> "${PATH_INFO}" && \
-    echo "vsearch: ${VERSION_VSEARCH}" >> "${PATH_INFO}" && \
-    echo "cd-hit: ${VERSION_CDHIT}" >> "${PATH_INFO}" && \
+    echo "- blast: ${VERSION_BLAST}" >> "${PATH_INFO}" && \
+    echo "  which blast: " $(which blastn) >> "${PATH_INFO}" && \
+    echo "- muscle: ${VERSION_MUSCLE}" >> "${PATH_INFO}" && \
+    echo "  which muscle: " $(which muscle) >> "${PATH_INFO}" && \
+    echo "- vsearch: ${VERSION_VSEARCH}" >> "${PATH_INFO}" && \
+    echo "  which vsearch: " $(which vsearch) >> "${PATH_INFO}" && \
+    echo "- cd-hit: ${VERSION_CDHIT}" >> "${PATH_INFO}" && \
+    echo "  which cd-hit: " $(which cd-hit) >> "${PATH_INFO}" && \
+    echo "- prestor: " >> "${PATH_INFO}" && \
     Rscript -e "versions::installed.versions(pkgs='prestor')" >> "${PATH_INFO}"
