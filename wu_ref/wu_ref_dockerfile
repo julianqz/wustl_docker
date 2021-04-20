@@ -54,21 +54,24 @@ RUN "./${SCRIPT_DB}" \
     -i "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
     -v "${VERSION_IMGT_1}" \
     -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
-    -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin"
+    -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin" \
+    && rm "${SCRIPT_DB}"
 
-RUN rm "${SCRIPT_DB}"
-
+# Because there could potentially be multiple versions of igblast installed
+# igblastn is added to PATH (since each version has a `igblastn`)
 
 # Switch back to jovyan to avoid accidental container runs as root
 
 USER "${NB_UID}"
 
 # build info
+# installation and PATH of igblastn is checked via calling a specific version and see if version can be printed
 
 ARG PATH_INFO="work/docker_build_info.txt"
 
 RUN echo "--- wu_ref ---" >> "${PATH_INFO}" && \
     date >> "${PATH_INFO}" && \
-    echo "IMGT references: release${VERSION_IMGT_1}" >> "${PATH_INFO}" && \
+    echo "- IMGT references: release${VERSION_IMGT_1}" >> "${PATH_INFO}" && \
+    echo "- IgBLAST:" >> "${PATH_INFO}" && \
     echo $(/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin/igblastn -version | head -n 1) >> "${PATH_INFO}"
 
