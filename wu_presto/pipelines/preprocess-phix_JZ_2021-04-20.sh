@@ -147,7 +147,7 @@ mkdir -p ${OUTDIR}; cd ${OUTDIR}
 LOGDIR="${OUTDIR}/logs"                               #*JZ added ${OUTDIR}
 mkdir -p "${LOGDIR}"                                  #*JZ 
 PIPELINE_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.log" #*JZ
-ERROR_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.err".   #*JZ
+ERROR_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.err"    #*JZ
 mkdir -p ${LOGDIR}
 echo '' > $PIPELINE_LOG
 echo '' > $ERROR_LOG
@@ -192,12 +192,14 @@ else
    CONVERT_FILE=${READS}
    rm $NO_N_READS
 fi
-   
+  
+BLAST_SIZE=$((`wc -l < ${CONVERT_FILE}`/4))
+
 #*JZ added clarity
 echo -e "          INPUT_SIZE> ${INPUT_SIZE}" >> $PIPELINE_LOG
 echo -e "REMOVED DUE TO ALL-N> ${REMOVED_SEQS}" >> $PIPELINE_LOG
 echo -e "       WITHOUT ALL-N> ${OUTPUT_SIZE}" >> $PIPELINE_LOG
-echo -e "     RUN THRU BLASTN> ${CONERT_FILE}\n" >> $PIPELINE_LOG
+echo -e "     RUN THRU BLASTN> ${BLAST_SIZE}\n" >> $PIPELINE_LOG
 
 #*JZ commented out whole block
 # Convert headers to presto format and fastq to fasta
