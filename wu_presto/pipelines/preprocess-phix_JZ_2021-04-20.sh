@@ -7,6 +7,7 @@
 # Date:    2018.03.19
 #
 # Adapted by Julian Q Zhou, 2021-04-20
+# Modifications are marked by "#*JZ"
 #
 #
 # Arguments:
@@ -144,6 +145,7 @@ mkdir -p ${OUTDIR}; cd ${OUTDIR}
 
 # Define log files
 LOGDIR="${OUTDIR}/logs"                               #*JZ added ${OUTDIR}
+mkdir -p "${LOGDIR}"                                  #*JZ 
 PIPELINE_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.log" #*JZ
 ERROR_LOG="${LOGDIR}/${OUTNAME}_pipeline-phix.err".   #*JZ
 mkdir -p ${LOGDIR}
