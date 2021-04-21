@@ -55,6 +55,7 @@ print_usage() {
     echo -e "  -p  Number of subprocesses for multiprocessing tools.\n" \
             "      Defaults to the available cores."
     echo -e "  -t  Path to Python script removing inconsistent C primer and internal C alignments." #*JZ
+    echo -e "  -s  Boolean. Passed to ${CS_KEEP}." #*
     echo -e "  -h  This message."
 }
 
@@ -72,7 +73,7 @@ NPROC_SET=false
 COORD_SET=false
 
 # Get commandline arguments
-while getopts "1:2:j:v:c:r:y:n:o:x:p:t:h" OPT; do #*JZ
+while getopts "1:2:j:v:c:r:y:n:o:x:p:t:s:h" OPT; do #*JZ
     case "$OPT" in
     1)  R1_READS=$OPTARG
         R1_READS_SET=true
@@ -107,8 +108,10 @@ while getopts "1:2:j:v:c:r:y:n:o:x:p:t:h" OPT; do #*JZ
     p)  NPROC=$OPTARG
         NPROC_SET=true
         ;;
-    t)  PATH_SCRIPT_INCONSISTENT=$(realpath "${OPTARG}") #*
-        ;;                                        #*
+    t)  PATH_SCRIPT_INCONSISTENT=$(realpath "${OPTARG}") #*JZ
+        ;;                                               #*JZ
+    s)  CS_KEEP=${OPTARG}                                #*JZ
+        ;;                                               #*JZ
     h)  print_usage
         exit
         ;;
@@ -269,7 +272,7 @@ AP_EVALUE=1e-5
 AP_MAXHITS=100
 
 # CollapseSeq run parameters
-CS_KEEP=true
+#CS_KEEP=true #*JZ now set via command line argument
 CS_MISS=0
 
 # Make output directory
