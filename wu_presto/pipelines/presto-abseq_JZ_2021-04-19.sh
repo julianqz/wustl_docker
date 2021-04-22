@@ -551,7 +551,7 @@ check_error
 # Generate pRESTO report
 if $REPORT; then
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "Generating report"
-    REPORT_SCRIPT="buildReport(\"${LOGDIR}\", sample=\"${OUTNAME}\", output_dir=\"${REPORTDIR}\", template=\"AbSeqV3\", config=\"${YAML}\", quiet=FALSE)"
+    REPORT_SCRIPT="buildReport(\"${LOGDIR}\", sample=\"${OUTNAME}\", output_dir=\"${REPORTDIR}\", template=\"AbSeqV3\", config=\"${YAML}\", quiet=FALSE, format=\"html\")"
     Rscript -e "library(prestor); ${REPORT_SCRIPT}" > ${REPORTDIR}/report.out 2> ${REPORTDIR}/report.err
 fi
 
