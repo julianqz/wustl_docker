@@ -1,11 +1,13 @@
 # specify version of base container
+# via `--build-arg <varname>=<value>` on command line
+# `wu_base:main_[version]`
 
-ARG BASE_CONTAINER="julianqz/wu_base:main"
+ARG BASE_CONTAINER
 
-FROM "${BASE_CONTAINER}"
+FROM "julianqz/${BASE_CONTAINER}"
 
 LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
-      description="Customized image for computational immunology projects."
+      description="Customized image for computational immunology projects. Built on top of julianqz/${BASE_CONTAINER}."
 
 USER root
 

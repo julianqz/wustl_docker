@@ -1,6 +1,6 @@
 # Specify version of base container 
 # via `--build-arg <varname>=<value>` on command line
-# Either `wu_presto:main` or `wu_cimm:main`
+# Either `wu_presto:main_[version]` or `wu_cimm:main_[version]`
 
 ARG BASE_CONTAINER
 
