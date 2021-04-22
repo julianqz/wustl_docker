@@ -1,0 +1,13 @@
+# Specify version of base container 
+# via `--build-arg <varname>=<value>` on command line
+
+ARG BASE_CONTAINER
+
+FROM "julianqz/${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="julianqz/${BASE_CONTAINER} plus /bin/sh for LSF."
+
+
+# LSF system on RIS at WUSTL needs this
+ENTRYPOINT ["/bin/sh"]
