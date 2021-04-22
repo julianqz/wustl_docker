@@ -1,6 +1,6 @@
 # specify version of base container
 
-ARG BASE_CONTAINER="julianqz/wu_base:main"
+ARG BASE_CONTAINER="julianqz/wu_base:main_0.1.0"
 
 FROM "${BASE_CONTAINER}"
 
@@ -18,8 +18,16 @@ COPY "./scripts/${SCRIPT_PHIX}" .
 
 # script to install prestor
 
-ARG SCRIPT_R="wu_presto_r.R"
-COPY "${SCRIPT_R}" .
+ARG SCRIPT_R_1="wu_presto_r.R"
+COPY "${SCRIPT_R_1}" .
+
+#* prestor would force re-install knitr to latest
+#  as of 2021-04-21, incompatibility issue with knitr 1.32
+#  force downgrade to knitr 1.31
+
+ARG VERSION_KNITR="1.31"
+ARG SCRIPT_R_2="wu_knitr_r.R"
+COPY "${SCRIPT_R_2}" .
 
 
 # specify versions of tools
@@ -37,7 +45,12 @@ ARG VERSION_VSEARCH="2.13.6"
 # Install prestor
 # ~60s
 
-RUN Rscript "${SCRIPT_R}" && rm "${SCRIPT_R}"
+RUN Rscript "${SCRIPT_R_1}" && rm "${SCRIPT_R_1}"
+
+#* downgrade knitr to 1.31
+
+RUN Rscript "${SCRIPT_R_2}" "${VERSION_KNITR}" && rm "${SCRIPT_R_2}"
+
 
 # cd-hit installation requires zlib if support for .gz format input file is wanted
 # without `apt-get update`, error if specifying `zlib1g-dev`: Unable to locate package zlib1g-dev
@@ -126,4 +139,6 @@ RUN echo "--- wu_presto ---" >> "${PATH_INFO}" && \
     echo "- cd-hit: ${VERSION_CDHIT}" >> "${PATH_INFO}" && \
     echo "  which cd-hit: " $(which cd-hit) >> "${PATH_INFO}" && \
     echo "- prestor: " >> "${PATH_INFO}" && \
-    Rscript -e "versions::installed.versions(pkgs='prestor')" >> "${PATH_INFO}"
+    Rscript -e "versions::installed.versions(pkgs='prestor')" >> "${PATH_INFO}" && \
+    echo "- knitr: " >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs='knitr')" >> "${PATH_INFO}"
