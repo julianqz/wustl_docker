@@ -1,8 +1,8 @@
 ARGS = commandArgs(trailingOnly=T)
-stopifnot(length(ARGS)==1)
+stopifnot(length(ARGS)==2)
 
 # order of command line arguments should match this
-PACKAGES = c("alakazam")
+PACKAGES = c("alakazam", "knitr")
 
 REPO_CRAN = "http://cran.us.r-project.org"
 #REPO_CRAN = "http://lib.stat.cmu.edu/R/CRAN/"

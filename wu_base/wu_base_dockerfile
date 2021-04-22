@@ -15,15 +15,28 @@ USER root
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
     tree \
-    less
+    less \
+    vim
+
+# Got an error with prestor: `Tool(s) not installed or not in PATH: pdfcrop`
+# Couldn't `tlmgr install pdfcrop` due to texlive version outdated in jupyter/datasciece-notebook (appears to a hassle to upgrade)
+# Directly downloaded pdfcrop v0.4b from sourceforge
+
+COPY "pdfcrop" "/usr/local/bin"
 
 # specify version of alakazam
 
 ARG VERSION_ALAKAZAM="1.1.0"
 
+#* As of 2021-04-21, later version of knitr (1.32) appears to cause issue with prestor
+#  (see prestor issue 132)
+#  After alakazam installation, manually downgrade knitr to 1.31
+
+ARG VERSION_KNITR="1.31"
+
 # variables listing R libraries
 
-ARG PKGS_R="c('alakazam', 'BiocManager', 'Biostrings', 'GenomicAlignments', 'IRanges')"
+ARG PKGS_R="c('alakazam', 'BiocManager', 'Biostrings', 'GenomicAlignments', 'IRanges', 'knitr')"
 
 # script to install R dependencies and alakazam
 
@@ -36,7 +49,7 @@ COPY "${SCRIPT_R}" .
 # install R dependencies and alakazam
 # ~760s
 
-RUN Rscript "${SCRIPT_R}" "${VERSION_ALAKAZAM}" && rm "${SCRIPT_R}"
+RUN Rscript "${SCRIPT_R}" "${VERSION_ALAKAZAM}" "${VERSION_KNITR}" && rm "${SCRIPT_R}"
 
 # Switch back to jovyan to avoid accidental container runs as root
 
@@ -50,5 +63,7 @@ ARG PATH_INFO="work/docker_build_info.txt"
 RUN echo "--- wu_base ---" > "${PATH_INFO}" && \
 	date >> "${PATH_INFO}" && \
 	python -V >> "${PATH_INFO}" && \
+	echo "- pdfcrop:" >> "${PATH_INFO}" && \
+	echo $(which pdfcrop) >> "${PATH_INFO}" && \
 	Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
 	Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
