@@ -47,7 +47,7 @@ ARG SCRIPT_R="wu_base_r.R"
 COPY "${SCRIPT_R}" .
 
 # install R dependencies and alakazam
-# ~760s
+# ~790s
 
 RUN Rscript "${SCRIPT_R}" "${VERSION_ALAKAZAM}" "${VERSION_KNITR}" && rm "${SCRIPT_R}"
 
