@@ -10,4 +10,5 @@ RUN apt-get update && \
     sudo \
     wget \
     tree \
-    less
+    less \
+    git
