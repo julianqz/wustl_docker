@@ -55,7 +55,7 @@ print_usage() {
     echo -e "  -p  Number of subprocesses for multiprocessing tools.\n" \
             "      Defaults to the available cores."
     echo -e "  -t  Path to Python script removing inconsistent C primer and internal C alignments." #*JZ
-    echo -e "  -s  Boolean. Passed to ${CS_KEEP}." #*
+    echo -e "  -s  Boolean. Passed to ${CS_KEEP}." #*JZ
     echo -e "  -h  This message."
 }
 
