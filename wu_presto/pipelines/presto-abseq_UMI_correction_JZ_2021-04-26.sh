@@ -48,7 +48,7 @@ print_usage() {
 
 # Argument validation variables
 PATH_LIST_SET=false #*JZ
-N_SUBSAMPLE=false  #*JZ
+N_SUBSAMPLE_SET=false  #*JZ
 R1_PRIMERS_SET=false
 R2_PRIMERS_SET=false
 CREGION_SEQ_SET=false
