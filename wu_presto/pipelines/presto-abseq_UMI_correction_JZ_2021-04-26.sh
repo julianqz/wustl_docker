@@ -474,7 +474,7 @@ if $BOOL_MID; then
     check_error
 
 
-    TABLE_UID="${OUTDIR}/${OUTNAME}_thresh-barcode.tab"
+    TABLE_UID="${OUTDIR}/${OUTNAME}_threshold-barcode.tab"
     
     CMD_UID="import pandas as pd; threshold=1-pd.read_table('${TABLE_UID}', index_col='TYPE')['THRESH']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
@@ -516,7 +516,7 @@ if $BOOL_MID; then
     check_error
 
 
-    TABLE_SET="${OUTDIR}/${OUTNAME}_thresh-set.tab"
+    TABLE_SET="${OUTDIR}/${OUTNAME}_threshold-set.tab"
 
     CMD_SET="import pandas as pd; threshold=1-pd.read_table('${TABLE_SET}', index_col='TYPE')['THRESH']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
