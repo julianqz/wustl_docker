@@ -458,7 +458,7 @@ if $BOOL_MID; then
     echo "concat:"
     ls "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass.fastq
     cat "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass.fastq > JOIN-R2.fastq
-    #check_error
+    
 
     # subsample
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
@@ -472,7 +472,7 @@ if $BOOL_MID; then
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError barcode"
     EstimateError.py barcode \
         -s "${OUTNAME}_sample1-n${N_SUBSAMPLE}.fastq" \
-        -f barcode \
+        -f BARCODE \
         --outname "${OUTNAME}" --outdir . \
         >> $PIPELINE_LOG 2> $ERROR_LOG
     check_error
