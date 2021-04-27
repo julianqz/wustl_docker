@@ -570,14 +570,24 @@ if $BOOL_MID; then
         -f INDEX_UID INDEX_SEQ \
         -k INDEX_NEW \
         --failed \
-        --outname "${OUTNAME}-seq" --outdir . \
+        --outname "${OUTNAME}-seq-merge" --outdir . \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error
+
+    # make a copy of SAMPLE
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders copy"
+    ParseHeaders.py copy \
+        -s "${OUTNAME}"-seq-merge_reheader.fastq \
+        -f SAMPLE -k SAMPLE_ORIG --act set \
+        --failed \
+        --outname "${OUTNAME}-seq-copy" --outdir . \
         >> $PIPELINE_LOG 2> $ERROR_LOG
     check_error
 
     # resolve collisions
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "UnifyHeaders consensus"
     UnifyHeaders.py consensus \
-        -s "${OUTNAME}"-seq_reheader.fastq \
+        -s "${OUTNAME}"-seq-copy_reheader.fastq \
         -f INDEX_NEW \
         -k SAMPLE \
         --failed \
@@ -728,40 +738,40 @@ if $BOOL_POST; then
         if $BC_ERR_FLAG; then
             if $BC_PRCONS_FLAG; then
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
-                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
+                    --cf BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG --act set set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
-                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
+                    --cf BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG --act set set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
             BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
-                --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
+                --cf BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG --act set set set set \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
         else
             if $BC_PRCONS_FLAG; then
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
-                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
+                    --cf BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG --act set set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
-                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
+                    --cf BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG --act set set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
             BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
-                --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
+                --cf BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG --act set set set set \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -789,8 +799,8 @@ if $BOOL_POST; then
         AssemblePairs.py sequential -1 "${OUTNAME}-R2_consensus-pass_pair-pass.fastq" \
             -2 "${OUTNAME}-R1_consensus-pass_pair-pass.fastq" -r $VREF_SEQ \
             --coord presto --rc tail \
-            --1f CONSCOUNT BARCODE INDEX_UID INDEX_SEQ \
-            --2f $PRFIELD CONSCOUNT PRFREQ BARCODE INDEX_UID INDEX_SEQ \
+            --1f CONSCOUNT BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG \
+            --2f $PRFIELD CONSCOUNT PRFREQ BARCODE INDEX_UID INDEX_SEQ SAMPLE_ORIG \
             --minlen $AP_MINLEN --maxerror $AP_MAXERR --alpha $AP_ALPHA --scanrev \
             --minident $AP_MINIDENT --evalue $AP_EVALUE --maxhits $AP_MAXHITS --aligner blastn \
             --failed \
