@@ -785,9 +785,12 @@ if $BOOL_POST; then
             PRFIELD="PRIMER"
         fi
 
+        #* added more fields to copy over
         AssemblePairs.py sequential -1 "${OUTNAME}-R2_consensus-pass_pair-pass.fastq" \
             -2 "${OUTNAME}-R1_consensus-pass_pair-pass.fastq" -r $VREF_SEQ \
-            --coord presto --rc tail --1f CONSCOUNT --2f $PRFIELD CONSCOUNT \
+            --coord presto --rc tail \
+            --1f CONSCOUNT BARCODE INDEX_UID INDEX_SEQ \
+            --2f $PRFIELD CONSCOUNT PRFREQ BARCODE INDEX_UID INDEX_SEQ \
             --minlen $AP_MINLEN --maxerror $AP_MAXERR --alpha $AP_ALPHA --scanrev \
             --minident $AP_MINIDENT --evalue $AP_EVALUE --maxhits $AP_MAXHITS --aligner blastn \
             --failed \
