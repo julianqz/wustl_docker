@@ -864,9 +864,9 @@ if $BOOL_POST; then
         check_error
 
         #* 
-        NROW_final_total=$((`wc -l < ${OUTNAME}-final_total.fastq`))
-        NROW_final_collapse-unique=$((`wc -l < ${OUTNAME}-final_collapse-unique.fastq`))
-        NROW_final_collapse-unique_atleast_2=$((`wc -l < ${OUTNAME}-final_collapse-unique_atleast-2.fastq`))
+        NROW_final_total=$((`wc -l < "${OUTNAME}-final_total.fastq"`))
+        NROW_final_collapse-unique=$((`wc -l < "${OUTNAME}-final_collapse-unique.fastq"`))
+        NROW_final_collapse-unique_atleast_2=$((`wc -l < "${OUTNAME}-final_collapse-unique_atleast-2.fastq"`))
 
         # Create table of final repertoire
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ParseHeaders table"
@@ -920,10 +920,14 @@ if $BOOL_POST; then
             Rscript -e "library(prestor); ${REPORT_SCRIPT}" > ${REPORTDIR}/report.out 2> ${REPORTDIR}/report.err
             #* rename prestor report
             #* name generated from yaml is the same for all samples b/c one yaml file used for entire project
-            mv "${REPORTDIR}/"*.html "${REPORTDIR}/${OUTNAME}_prestor.html"
+            #* error: `mv "${REPORTDIR}"/*.html "${REPORTDIR}/${OUTNAME}_prestor.html"` 
+            #*         mv: target 'report/sample1_prestor.html' is not a directory
+            cd "${REPORTDIR}"
+            mv *.html "${OUTNAME}_prestor.html"
         fi
 
         #* convert fastq to fasta
+        cd "${OUTDIR}"
         echo "Converting output fastq to fasta"
         "${PATH_SCRIPT_Q2A}" "${OUTNAME}-final_collapse-unique_atleast-2.fastq"
         "${PATH_SCRIPT_Q2A}" "${OUTNAME}-final_collapse-unique.fastq"
