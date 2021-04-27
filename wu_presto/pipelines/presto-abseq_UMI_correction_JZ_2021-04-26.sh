@@ -371,6 +371,8 @@ if $BOOL_PRE; then
 
         # convert header to presto format
         # [outname]_convert-pass.fastq
+        # this step essential, otherwise loss of part of illumina header after AssemblePairs join
+        # will cause PairSeq in post-indexing to fail
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ConvertHeaders ${COORD}"
         ConvertHeaders.py illumina \
             -s "${OUTNAME}-R1_primers-pass_pair-pass.fastq" \
@@ -861,18 +863,28 @@ if $BOOL_POST; then
             >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
 
+        #* 
+        NROW_final_total=$((`wc -l < ${OUTNAME}-final_total.fastq`))
+        NROW_final_collapse-unique=$((`wc -l < ${OUTNAME}-final_collapse-unique.fastq`))
+        NROW_final_collapse-unique_atleast_2=$((`wc -l < ${OUTNAME}-final_collapse-unique_atleast-2.fastq`))
 
         # Create table of final repertoire
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ParseHeaders table"
-        ParseHeaders.py table -s "${OUTNAME}-final_total.fastq" \
-            -f ID PRCONS $CREGION_FIELD CONSCOUNT --outname "final-total" \
-            --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
-        ParseHeaders.py table -s "${OUTNAME}-final_collapse-unique.fastq" \
-            -f ID PRCONS $CREGION_FIELD CONSCOUNT DUPCOUNT --outname "final-unique" \
-            --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
-        ParseHeaders.py table -s "${OUTNAME}-final_collapse-unique_atleast-2.fastq" \
-            -f ID PRCONS $CREGION_FIELD CONSCOUNT DUPCOUNT --outname "final-unique-atleast2" \
-            --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
+        if [[ $NROW_final_total > 0 ]]; then
+            ParseHeaders.py table -s "${OUTNAME}-final_total.fastq" \
+                -f ID PRCONS $CREGION_FIELD CONSCOUNT --outname "final-total" \
+                --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
+        fi
+        if [[ $NROW_final_collapse-unique > 0 ]]; then
+            ParseHeaders.py table -s "${OUTNAME}-final_collapse-unique.fastq" \
+                -f ID PRCONS $CREGION_FIELD CONSCOUNT DUPCOUNT --outname "final-unique" \
+                --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
+        fi
+        if [[ $NROW_final_collapse-unique_atleast_2 > 0 ]]; then
+            ParseHeaders.py table -s "${OUTNAME}-final_collapse-unique_atleast-2.fastq" \
+                -f ID PRCONS $CREGION_FIELD CONSCOUNT DUPCOUNT --outname "final-unique-atleast2" \
+                --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
+        fi
         check_error
 
 
