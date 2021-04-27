@@ -689,7 +689,7 @@ if $BOOL_POST; then
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R1.fastq" \
             -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
-            --2f INDEX_UID INDEX_SEQ INDEX_NEW \
+            --2f INDEX_UID INDEX_SEQ INDEX_NEW SAMPLE_ORIG \
             --coord "presto" \
             --failed \
             --outname "${OUTNAME}-INDEX-R1" --outdir "${OUTDIR_MID}" \
@@ -705,7 +705,7 @@ if $BOOL_POST; then
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R2.fastq" \
             -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
-            --2f INDEX_UID INDEX_SEQ INDEX_NEW \
+            --2f INDEX_UID INDEX_SEQ INDEX_NEW SAMPLE_ORIG \
             --coord "presto" \
             --failed \
             --outname "${OUTNAME}-INDEX-R2" --outdir "${OUTDIR_MID}" \
