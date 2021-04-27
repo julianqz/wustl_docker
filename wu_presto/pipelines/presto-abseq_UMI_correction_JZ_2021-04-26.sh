@@ -530,7 +530,6 @@ if $BOOL_MID; then
     EstimateError.py set \
         -s "${OUTNAME}-uid_cluster-pass.fastq" \
         -f INDEX_UID \
-        -n 2 \
         --nproc "${NPROC}" \
         --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
         >> $PIPELINE_LOG 2> $ERROR_LOG
