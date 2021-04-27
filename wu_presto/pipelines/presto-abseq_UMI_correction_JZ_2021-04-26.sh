@@ -361,18 +361,35 @@ if $BOOL_PRE; then
 
 
         # Assign UIDs to read 1 sequences
+        # header still has full illumina id
+        # eg: @M00990:604:000000000-JFK82:1:1101:18445:1815 1:N:0:ATCACG|PRIMER=Human-IGHG|BARCODE=CTTGTTGTTTCATATAA
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "PairSeq"
         PairSeq.py -1 "${OUTNAME}-R1_primers-pass.fastq" -2 "${OUTNAME}-R2_primers-pass.fastq" \
             --2f BARCODE --coord $COORD >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
 
 
+        # convert header to presto format
+        # [outname]_convert-pass.fastq
+        printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ConvertHeaders ${COORD}"
+        ConvertHeaders.py illumina \
+            -s "${OUTNAME}-R1_primers-pass_pair-pass.fastq" \
+            --outname "${OUTNAME}-R1_primers-pass_pair-pass" --outdir . --failed \
+            >> $PIPELINE_LOG 2> $ERROR_LOG
+        ConvertHeaders.py illumina \
+            -s "${OUTNAME}-R2_primers-pass_pair-pass.fastq" \
+            --outname "${OUTNAME}-R2_primers-pass_pair-pass" --outdir . --failed \
+            >> $PIPELINE_LOG 2> $ERROR_LOG
+        check_error
+
         # Concatenate the sequence pairs end-to-end for EstimateError
+        # without conversion, illumina header loses the part that comes after space (" 1:N:0:ATCACG" in the eg below)
+        # eg: @M00990:604:000000000-JFK82:1:1101:18445:1815|PRIMER=Human-IGHG|BARCODE=CTTGTTGTTTCATATAA
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "AssemblePairs join"
         AssemblePairs.py join \
-            -1 "${OUTNAME}-R1_primers-pass_pair-pass.fastq" \
-            -2 "${OUTNAME}-R2_primers-pass_pair-pass.fastq" \
-            --1f PRIMER --2f BARCODE --coord $COORD --nproc $NPROC \
+            -1 "${OUTNAME}-R1_primers-pass_pair-pass_convert-pass.fastq" \
+            -2 "${OUTNAME}-R2_primers-pass_pair-pass_convert-pass.fastq" \
+            --1f PRIMER --2f BARCODE --coord presto --nproc $NPROC \
             --outname "${OUTNAME}-INDEX" --outdir . --log "${LOGDIR}/AssemblePairsJoin.log" \
             >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
@@ -448,12 +465,12 @@ if $BOOL_MID; then
     cat "${OUTDIR_OVERALL}"/*/*-INDEX_reheader.fastq > JOIN.fastq
 
     echo "concat:"
-    ls "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass.fastq
-    cat "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass.fastq > JOIN-R1.fastq
+    ls "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass_convert-pass.fastq
+    cat "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass_convert-pass.fastq > JOIN-R1.fastq
     
     echo "concat:"
-    ls "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass.fastq
-    cat "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass.fastq > JOIN-R2.fastq
+    ls "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass_convert-pass.fastq
+    cat "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass_convert-pass.fastq > JOIN-R2.fastq
     
 
     # subsample
@@ -549,7 +566,6 @@ if $BOOL_MID; then
         -s "${OUTNAME}-seq_cluster-pass.fastq" \
         -f INDEX_UID INDEX_SEQ \
         -k INDEX_NEW \
-        --delete \
         --failed \
         --outname "${OUTNAME}-seq" --outdir . \
         >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -655,7 +671,7 @@ if $BOOL_POST; then
             -1 "${OUTDIR_MID}/JOIN-R1.fastq" \
             -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
             --2f INDEX_NEW \
-            --coord "${COORD}" \
+            --coord "presto" \
             --failed \
             --outname "${OUTNAME}-INDEX-R1" --outdir "${OUTDIR_MID}" \
             >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -671,7 +687,7 @@ if $BOOL_POST; then
             -1 "${OUTDIR_MID}/JOIN-R2.fastq" \
             -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
             --2f INDEX_NEW \
-            --coord "${COORD}" \
+            --coord "presto" \
             --failed \
             --outname "${OUTNAME}-INDEX-R2" --outdir "${OUTDIR_MID}" \
             >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -679,13 +695,16 @@ if $BOOL_POST; then
 
         rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-2_pair-pass.fastq"
         
+
         mv "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
            "${OUTDIR}/${OUTNAME}-INDEX.fastq"
+
 
         mv "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-1_pair-pass.fastq" \
             "${OUTDIR}/${OUTNAME}-INDEX-R1.fastq"
 
         BCR1_FILE="${OUTNAME}-INDEX-R1.fastq"
+
 
         mv "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-1_pair-pass.fastq" \
             "${OUTDIR}/${OUTNAME}-INDEX-R2.fastq"
