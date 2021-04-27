@@ -863,10 +863,10 @@ if $BOOL_POST; then
             >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
 
-        #* 
+        #* can't have "-" (dash) in shell variable name
         NROW_final_total=$((`wc -l < "${OUTNAME}-final_total.fastq"`))
-        NROW_final_collapse-unique=$((`wc -l < "${OUTNAME}-final_collapse-unique.fastq"`))
-        NROW_final_collapse-unique_atleast_2=$((`wc -l < "${OUTNAME}-final_collapse-unique_atleast-2.fastq"`))
+        NROW_final_collapse_unique=$((`wc -l < "${OUTNAME}-final_collapse-unique.fastq"`))
+        NROW_final_collapse_unique_atleast_2=$((`wc -l < "${OUTNAME}-final_collapse-unique_atleast-2.fastq"`))
 
         # Create table of final repertoire
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ParseHeaders table"
