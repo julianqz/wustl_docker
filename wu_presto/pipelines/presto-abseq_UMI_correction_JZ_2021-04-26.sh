@@ -615,6 +615,10 @@ if $BOOL_POST; then
     # indexing folder
     OUTDIR_MID="${OUTDIR_OVERALL}/indexing"
 
+    # keep a constant copy of the starting step outside for loop
+    # otherwise it will keep growing for later samples
+    STEP_INIT=${STEP}
+
 
     for ((IDX=1; IDX<=${N_LINES}; IDX++)); do
 
@@ -665,7 +669,7 @@ if $BOOL_POST; then
         echo -e "DIRECTORY: ${OUTDIR}"
         echo -e "PRESTO VERSION: ${PRESTO_VERSION}"
         echo -e "\nSTART"
-        #STEP=0 # this is set in the pre-indexing loop (even when BOOL_PRE is false)
+        STEP=$(($STEP_INIT+1))
 
 
         # 
