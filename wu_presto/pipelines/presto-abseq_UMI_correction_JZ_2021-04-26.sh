@@ -384,7 +384,7 @@ if $BOOL_PRE; then
         ParseHeaders.py add \
             -s "${OUTNAME}-INDEX_assemble-pass.fastq" \
             -f SAMPLE -u "${OUTNAME}" \
-            --outname "${OUTNAME}-INDEX" --oudir . \
+            --outname "${OUTNAME}-INDEX" --outdir . \
             >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
 
