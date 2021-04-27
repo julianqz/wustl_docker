@@ -452,7 +452,7 @@ if $BOOL_MID; then
     cat "${OUTDIR_OVERALL}"/*/*-INDEX_reheader.fastq > JOIN.fastq
 
     echo "concat:"
-    ls cat "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass.fastq
+    ls "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass.fastq
     cat "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass.fastq > JOIN-R1.fastq
     
     echo "concat:"
