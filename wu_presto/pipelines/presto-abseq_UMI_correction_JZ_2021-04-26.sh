@@ -724,40 +724,40 @@ if $BOOL_POST; then
         if $BC_ERR_FLAG; then
             if $BC_PRCONS_FLAG; then
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
-                    --cf BARCODE INDEX_UID INDEX_SEQ \
+                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
-                    --cf BARCODE INDEX_UID INDEX_SEQ \
+                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
             BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
-                --cf BARCODE INDEX_UID INDEX_SEQ \
+                --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
         else
             if $BC_PRCONS_FLAG; then
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
-                    --cf BARCODE INDEX_UID INDEX_SEQ \
+                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
-                    --cf BARCODE INDEX_UID INDEX_SEQ \
+                    --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
             BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
-                --cf BARCODE INDEX_UID INDEX_SEQ \
+                --cf BARCODE INDEX_UID INDEX_SEQ --act set set set \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -880,6 +880,7 @@ if $BOOL_POST; then
         NROW_final_collapse_unique_atleast_2=$((`wc -l < "${OUTNAME}-final_collapse-unique_atleast-2.fastq"`))
 
         # Create table of final repertoire
+        #* added if loop to catch empty .fastq
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "ParseHeaders table"
         if [[ $NROW_final_total > 0 ]]; then
             ParseHeaders.py table -s "${OUTNAME}-final_total.fastq" \
