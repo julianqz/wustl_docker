@@ -13,7 +13,7 @@ USER root
 
 
 # script to fetch phix
-# "."" is /home/jovyan
+# the second "." is /home/jovyan
 
 ARG SCRIPT_PHIX="fetch_phix.sh"
 COPY "./scripts/${SCRIPT_PHIX}" .
@@ -116,7 +116,30 @@ RUN mkdir -p /usr/local/share/phix \
 
 # Install presto
 
-RUN pip install "presto==${VERSION_PRESTO}"
+#RUN pip install "presto==${VERSION_PRESTO}"
+
+
+#* Install presto stable version and increase hard-coded memory limit for cd-hit-est
+
+ARG URL_PRESTO="https://bitbucket.org/kleinstein/presto/downloads/presto-${VERSION_PRESTO}.tar.gz"
+
+ARG PY_PRESTO="presto-0.6.2_Applications_JZ-2021-04-27.py"
+
+COPY "./scripts/${PY_PRESTO}" "/home/jovyan/work"
+
+# wouldn't work without --no-cache-dir (complains about permission)
+# wouldn't work if not given a .tar.gz but a directory
+
+RUN cd "/home/jovyan/work" \
+    && wget -q --show-progress --no-check-certificate "${URL_PRESTO}" \
+    && tar -zxf "presto-${VERSION_PRESTO}.tar.gz" \
+    && rm "presto-${VERSION_PRESTO}.tar.gz" \
+    && rm "presto-${VERSION_PRESTO}/presto/Applications.py" \
+    && cp "${PY_PRESTO}" "presto-${VERSION_PRESTO}/presto/Applications.py" \
+    && tar -zcf "presto_jz.tar.gz" "presto-${VERSION_PRESTO}"/* \
+    && rm -r "presto-${VERSION_PRESTO}" \
+    && pip --no-cache-dir install "/home/jovyan/work/presto_jz.tar.gz" \
+    && rm "${PY_PRESTO}" "presto_jz.tar.gz"
 
 
 # Switch back to jovyan to avoid accidental container runs as root
