@@ -586,7 +586,7 @@ if $BOOL_MID; then
     check_error
 
     # divide into samples
-    # ${OUTNAME}-SAMPLE-${sample_id}.fastq
+    # ${OUTNAME}_SAMPLE-${sample_id}.fastq
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq group"
     SplitSeq.py group \
         -s "${OUTNAME}_unify-pass.fastq" \
@@ -876,12 +876,12 @@ if $BOOL_POST; then
                 -f ID PRCONS $CREGION_FIELD CONSCOUNT --outname "final-total" \
                 --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
         fi
-        if [[ $NROW_final_collapse-unique > 0 ]]; then
+        if [[ $NROW_final_collapse_unique > 0 ]]; then
             ParseHeaders.py table -s "${OUTNAME}-final_collapse-unique.fastq" \
                 -f ID PRCONS $CREGION_FIELD CONSCOUNT DUPCOUNT --outname "final-unique" \
                 --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
         fi
-        if [[ $NROW_final_collapse-unique_atleast_2 > 0 ]]; then
+        if [[ $NROW_final_collapse_unique_atleast_2 > 0 ]]; then
             ParseHeaders.py table -s "${OUTNAME}-final_collapse-unique_atleast-2.fastq" \
                 -f ID PRCONS $CREGION_FIELD CONSCOUNT DUPCOUNT --outname "final-unique-atleast2" \
                 --outdir ${LOGDIR} >> $PIPELINE_LOG 2> $ERROR_LOG
