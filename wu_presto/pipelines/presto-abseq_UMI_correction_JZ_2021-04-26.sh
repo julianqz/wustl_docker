@@ -639,14 +639,12 @@ if $BOOL_POST; then
             fi
         }
 
-        # Start
-        if ! [ -s $PIPELINE_LOG ]; then
-            PRESTO_VERSION=$(python3 -c "import presto; print('%s-%s' % (presto.__version__, presto.__date__))")
-            echo -e "IDENTIFIER: ${OUTNAME}"
-            echo -e "DIRECTORY: ${OUTDIR}"
-            echo -e "PRESTO VERSION: ${PRESTO_VERSION}"
-            echo -e "\nSTART"
-        fi
+        # Start        
+        PRESTO_VERSION=$(python3 -c "import presto; print('%s-%s' % (presto.__version__, presto.__date__))")
+        echo -e "IDENTIFIER: ${OUTNAME}"
+        echo -e "DIRECTORY: ${OUTDIR}"
+        echo -e "PRESTO VERSION: ${PRESTO_VERSION}"
+        echo -e "\nSTART"
         #STEP=0 # this is set in the pre-indexing loop (even when BOOL_PRE is false)
 
 
@@ -655,30 +653,32 @@ if $BOOL_POST; then
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "PairSeq"
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R1.fastq" \
-            -2 "${OUTIDR_MID}JOIN_SAMPLE-${OUTNAME}.fastq" \
+            -2 "${OUTIDR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
             --2f INDEX_NEW \
             --coord "${COORD}" \
             --failed \
             --outname "${OUTNAME}-INDEX-R1" --outdir "${OUTDIR_MID}" \
             >> $PIPELINE_LOG 2> $ERROR_LOG
-        rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-2_pair-pass.fastq"
         check_error
+
+        rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-2_pair-pass.fastq"
+        
 
 
         # ${OUTNAME}-INDEX-R2-1_pair-pass.fastq
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "PairSeq"
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R2.fastq" \
-            -2 "${OUTIDR_MID}JOIN_SAMPLE-${OUTNAME}.fastq" \
+            -2 "${OUTIDR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
             --2f INDEX_NEW \
             --coord "${COORD}" \
             --failed \
             --outname "${OUTNAME}-INDEX-R2" --outdir "${OUTDIR_MID}" \
             >> $PIPELINE_LOG 2> $ERROR_LOG
-        rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-2_pair-pass.fastq"
         check_error
 
-
+        rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-2_pair-pass.fastq"
+        
         mv "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
            "${OUTDIR}/${OUTNAME}-INDEX.fastq"
 
