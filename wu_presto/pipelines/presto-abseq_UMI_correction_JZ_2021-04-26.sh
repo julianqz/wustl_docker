@@ -275,9 +275,7 @@ if $BOOL_PRE; then
 
         echo "IDX: ${IDX}; SAMPLE: ${OUTNAME}" &>> "${PATH_LOG}"
 
-        # sample-specific log
-        PATH_LOG="${OUTDIR_OVERALL}/log_bcr_presto-abseq_UMI_correction_$(date '+%m%d%Y_%H%M%S').log"
-
+        
         # sample-specific paths to R1 & R2 FASTQs
         R1_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_1}"
         R2_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_2}"
