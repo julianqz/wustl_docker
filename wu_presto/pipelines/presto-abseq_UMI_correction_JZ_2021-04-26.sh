@@ -679,7 +679,7 @@ if $BOOL_POST; then
             >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
 
-        rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-2_pair-pass.fastq"
+        #rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-2_pair-pass.fastq"
         
 
 
@@ -695,58 +695,59 @@ if $BOOL_POST; then
             >> $PIPELINE_LOG 2> $ERROR_LOG
         check_error
 
-        rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-2_pair-pass.fastq"
+        #rm "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-2_pair-pass.fastq"
         
 
-        mv "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
+        cp "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
            "${OUTDIR}/${OUTNAME}-INDEX.fastq"
 
 
-        mv "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-1_pair-pass.fastq" \
+        cp "${OUTDIR_MID}/${OUTNAME}-INDEX-R1-1_pair-pass.fastq" \
             "${OUTDIR}/${OUTNAME}-INDEX-R1.fastq"
 
         BCR1_FILE="${OUTNAME}-INDEX-R1.fastq"
 
 
-        mv "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-1_pair-pass.fastq" \
+        cp "${OUTDIR_MID}/${OUTNAME}-INDEX-R2-1_pair-pass.fastq" \
             "${OUTDIR}/${OUTNAME}-INDEX-R2.fastq"
 
         BCR2_FILE="${OUTNAME}-INDEX-R2.fastq"
 
 
+        #* IMPORTANT: replace --bf BARCODE with INDEX_NEW
         # Build UID consensus sequences
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "BuildConsensus"
         if $BC_ERR_FLAG; then
             if $BC_PRCONS_FLAG; then
-                BuildConsensus.py -s $BCR1_FILE --bf BARCODE --pf PRIMER --prcons $BC_PRCONS \
+                BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
-                BuildConsensus.py -s $BCR1_FILE --bf BARCODE --pf PRIMER \
+                BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
-            BuildConsensus.py -s $BCR2_FILE --bf BARCODE --pf PRIMER \
+            BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
         else
             if $BC_PRCONS_FLAG; then
-                BuildConsensus.py -s $BCR1_FILE --bf BARCODE --pf PRIMER --prcons $BC_PRCONS \
+                BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
-                BuildConsensus.py -s $BCR1_FILE --bf BARCODE --pf PRIMER \
+                BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
-            BuildConsensus.py -s $BCR2_FILE --bf BARCODE --pf PRIMER \
+            BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
