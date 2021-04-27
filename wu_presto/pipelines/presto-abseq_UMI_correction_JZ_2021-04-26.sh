@@ -476,7 +476,7 @@ if $BOOL_MID; then
 
     TABLE_UID="${OUTDIR}/${OUTNAME}_thresh-barcode.tab"
     
-    CMD_UID="import pandas as pd; threshold=1-pd.read_table(${TABLE_UID}, index_col='TYPE')['THRESH']['ALL']; print(0.8 if threshold<0.8 else threshold)"
+    CMD_UID="import pandas as pd; threshold=1-pd.read_table('${TABLE_UID}', index_col='TYPE')['THRESH']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
     UID_THRESHOLD_PERCENT=$(echo -e "${CMD_UID}" | python3)
 
@@ -518,7 +518,7 @@ if $BOOL_MID; then
 
     TABLE_SET="${OUTDIR}/${OUTNAME}_thresh-set.tab"
 
-    CMD_SET="import pandas as pd; threshold=1-pd.read_table(${TABLE_SET}, index_col='TYPE')['THRESH']['ALL']; print(0.8 if threshold<0.8 else threshold)"
+    CMD_SET="import pandas as pd; threshold=1-pd.read_table('${TABLE_SET}', index_col='TYPE')['THRESH']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
     SEQ_THRESHOLD_PERCENT=$(echo -e "${CMD_SET}" | python3)
 
