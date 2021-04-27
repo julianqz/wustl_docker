@@ -653,7 +653,7 @@ if $BOOL_POST; then
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "PairSeq"
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R1.fastq" \
-            -2 "${OUTIDR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
+            -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
             --2f INDEX_NEW \
             --coord "${COORD}" \
             --failed \
@@ -669,7 +669,7 @@ if $BOOL_POST; then
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "PairSeq"
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R2.fastq" \
-            -2 "${OUTIDR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
+            -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
             --2f INDEX_NEW \
             --coord "${COORD}" \
             --failed \
