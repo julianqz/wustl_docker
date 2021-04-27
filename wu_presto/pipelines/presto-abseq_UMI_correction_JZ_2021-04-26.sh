@@ -122,8 +122,8 @@ while getopts "a:b:c:d:e:f:g:i:j:k:l:m:n:o:p:q:r:s:t:h" OPT; do #*JZ
 done
 
 # Exit if required arguments are not provided
-if ! ${PATH_LIST_SET} || ! ${N_SUBSAMPLE}; then
-    echo -e "You must specify PATH_LIST_SET and N_SUBSAMPLE using the -a and -b options." >&2
+if ! ${PATH_LIST_SET} || ! ${N_SUBSAMPLE_SET}; then
+    echo -e "You must specify PATH_LIST_SET and N_SUBSAMPLE using the -a and -e options." >&2
     exit 1
 fi
 
