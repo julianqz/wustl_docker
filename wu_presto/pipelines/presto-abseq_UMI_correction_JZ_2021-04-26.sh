@@ -510,6 +510,7 @@ if $BOOL_MID; then
         -k INDEX_UID \
         --ident "${UID_THRESHOLD_PERCENT}" \
         --cluster cd-hit-est \
+        --prefix "u" \
         --nproc "${NPROC}" \
         --outname "${OUTNAME}-uid" --outdir . \
         >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -554,6 +555,7 @@ if $BOOL_MID; then
         --ident "${SEQ_THRESHOLD_PERCENT}" \
         --failed \
         --cluster cd-hit-est \
+        --prefix "s" \
         --nproc "${NPROC}" \
         --outname "${OUTNAME}-seq" --outdir . --log "${LOGDIR}/ClusterSetsSet.log" \
         >> $PIPELINE_LOG 2> $ERROR_LOG
@@ -672,7 +674,7 @@ if $BOOL_POST; then
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R1.fastq" \
             -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
-            --2f INDEX_NEW \
+            --2f INDEX_UID INDEX_SEQ INDEX_NEW \
             --coord "presto" \
             --failed \
             --outname "${OUTNAME}-INDEX-R1" --outdir "${OUTDIR_MID}" \
@@ -688,7 +690,7 @@ if $BOOL_POST; then
         PairSeq.py \
             -1 "${OUTDIR_MID}/JOIN-R2.fastq" \
             -2 "${OUTDIR_MID}/JOIN_SAMPLE-${OUTNAME}.fastq" \
-            --2f INDEX_NEW \
+            --2f INDEX_UID INDEX_SEQ INDEX_NEW \
             --coord "presto" \
             --failed \
             --outname "${OUTNAME}-INDEX-R2" --outdir "${OUTDIR_MID}" \
@@ -715,46 +717,54 @@ if $BOOL_POST; then
 
 
         #* IMPORTANT: replace --bf BARCODE with INDEX_NEW
+        #* add --cf BARCODE to keep track of BARCODE (otherwise won't propogate)
+
         # Build UID consensus sequences
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "BuildConsensus"
         if $BC_ERR_FLAG; then
             if $BC_PRCONS_FLAG; then
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
+                    --cf BARCODE INDEX_UID INDEX_SEQ \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
+                    --cf BARCODE INDEX_UID INDEX_SEQ \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
             BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
+                --cf BARCODE INDEX_UID INDEX_SEQ \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxerror $BC_MAXERR --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
         else
             if $BC_PRCONS_FLAG; then
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER --prcons $BC_PRCONS \
+                    --cf BARCODE INDEX_UID INDEX_SEQ \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             else
                 BuildConsensus.py -s $BCR1_FILE --bf INDEX_NEW --pf PRIMER \
+                    --cf BARCODE INDEX_UID INDEX_SEQ \
                     -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                     --nproc $NPROC --log "${LOGDIR}/consensus-1.log" \
                     --outname "${OUTNAME}-R1" >> $PIPELINE_LOG 2> $ERROR_LOG
             fi
 
             BuildConsensus.py -s $BCR2_FILE --bf INDEX_NEW --pf PRIMER \
+                --cf BARCODE INDEX_UID INDEX_SEQ \
                 -n $BC_MINCOUNT -q $BC_QUAL --maxgap $BC_MAXGAP \
                 --nproc $NPROC --log "${LOGDIR}/consensus-2.log" \
                 --outname "${OUTNAME}-R2" >> $PIPELINE_LOG 2> $ERROR_LOG
         fi
         check_error
 
-        # BuildConsensus changes coord into presto (JZ)
+        #* BuildConsensus changes coord into presto (JZ)
 
         # Syncronize read files
         printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 24 "PairSeq"
