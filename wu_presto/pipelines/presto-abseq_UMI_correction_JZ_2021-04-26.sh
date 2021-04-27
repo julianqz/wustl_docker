@@ -275,7 +275,7 @@ if $BOOL_PRE; then
 
         echo "IDX: ${IDX}; SAMPLE: ${OUTNAME}" &>> "${PATH_LOG}"
 
-        
+
         # sample-specific paths to R1 & R2 FASTQs
         R1_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_1}"
         R2_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_2}"
@@ -416,12 +416,10 @@ if $BOOL_MID; then
     # Define log files
     LOGDIR="logs"
     REPORTDIR="report"
-    TABLEDIR="table"
     PIPELINE_LOG="${LOGDIR}/pipeline-indexing.log"
     ERROR_LOG="${LOGDIR}/pipeline-indexing.err"
     mkdir -p ${LOGDIR}
     mkdir -p ${REPORTDIR}
-    mkdir -p ${TABLEDIR}
     date > $PIPELINE_LOG
     date > $ERROR_LOG
 
