@@ -435,8 +435,8 @@ if $BOOL_MID; then
     # Define log files
     LOGDIR="logs"
     REPORTDIR="report"
-    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_4.log" #&
-    ERROR_LOG="${LOGDIR}/pipeline-indexing_4.err" #&
+    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_5.log" #&
+    ERROR_LOG="${LOGDIR}/pipeline-indexing_5.err" #&
     mkdir -p ${LOGDIR}
     mkdir -p ${REPORTDIR}
     date > $PIPELINE_LOG
@@ -517,12 +517,14 @@ if $BOOL_MID; then
     # check_error
 
     #*
-    UID_SUBSAMPLE=100000
+    UID_SUBSAMPLE=100
 
     # subsample
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
     SplitSeq.py sample \
-        -s "${OUTNAME}-uid_cluster-pass.fastq" -n "${UID_SUBSAMPLE}" \
+        -s "${OUTNAME}-uid_cluster-pass.fastq" \
+        -n "${UID_SUBSAMPLE}" \
+        -f INDEX_UID \
         --outname "${OUTNAME}-uid" --outdir . \
         >> $PIPELINE_LOG 2> $ERROR_LOG
     check_error    
