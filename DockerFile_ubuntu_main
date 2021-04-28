@@ -12,3 +12,5 @@ RUN apt-get update && \
     tree \
     less \
     git
+
+RUN git config --global http.sslverify false
