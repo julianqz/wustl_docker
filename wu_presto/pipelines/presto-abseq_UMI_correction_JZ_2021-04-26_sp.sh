@@ -516,13 +516,49 @@ if $BOOL_MID; then
     #     >> $PIPELINE_LOG 2> $ERROR_LOG
     # check_error
 
-    # subsample
-    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
-    SplitSeq.py sample \
-        -s "${OUTNAME}-uid_cluster-pass.fastq" -n "${N_SUBSAMPLE}" \
-        --outname "${OUTNAME}-uid" --outdir . \
+    # # subsample
+    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
+    # SplitSeq.py sample \
+    #     -s "${OUTNAME}-uid_cluster-pass.fastq" -n "${N_SUBSAMPLE}" \
+    #     --outname "${OUTNAME}-uid" --outdir . \
+    #     >> $PIPELINE_LOG 2> $ERROR_LOG
+    # check_error    
+
+    # Tabulate INDEX_UID
+    # [outname]_headers.tab
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders table"
+    ParseHeaders.py table \
+        -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID --failed \
+        --outname "${OUTNAME}-uid_cluster-pass" --outdir "${LOGDIR}" \
         >> $PIPELINE_LOG 2> $ERROR_LOG
-    check_error    
+    check_error
+
+    #*
+    PATH_SCRIPT_UID="/home/jqzhou/code/docker/wu_presto/scripts/filter_uid_by_size.R"
+    UID_LB=20
+    UID_UB=20000
+    UID_SUBSAMPLE=5000
+
+    # Subsample INDEX_UIDs for EE set
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "Subsample INDEX_UIDs"
+    "${PATH_SCRIPT_UID}" \
+        --input "${LOGDIR}/${OUTNAME}-uid_cluster-pass_headers.tab" \
+        --output "${OUTNAME}-uid_cluster-pass_sample.tab" \
+        --field INDEX_UID \
+        --LB "${UID_LB}" --UB "${UID_UB}" --sampleSize "${UID_SUBSAMPLE}"
+
+    # Subset ${OUTNAME}-uid_cluster-pass.fastq for EE set
+    # [outname]_selected.fastq
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq select"
+    SplitSeq.py select \
+        -s "${OUTNAME}-uid_cluster-pass.fastq" \
+        -f INDEX_UID \
+        -t "${OUTNAME}-uid_cluster-pass_sample.tab" \
+        --failed \
+        --outname "${OUTNAME}-uid_cluster-pass" \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error
+
     
     # defaults:
     #   -n: min num of seqs needed to consider a set: 20
@@ -534,7 +570,7 @@ if $BOOL_MID; then
 
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
     EstimateError.py set \
-        -s "${OUTNAME}-uid_sample1-n${N_SUBSAMPLE}.fastq" \
+        -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
         -f INDEX_UID \
         --nproc "${NPROC}" \
         --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
