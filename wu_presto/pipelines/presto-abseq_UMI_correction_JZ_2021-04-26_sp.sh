@@ -526,26 +526,26 @@ if $BOOL_MID; then
 
     # Tabulate INDEX_UID
     # [outname]_headers.tab
-    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders table"
-    ParseHeaders.py table \
-        -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID --failed \
-        --outname "${OUTNAME}-uid_cluster-pass" --outdir "${LOGDIR}" \
-        >> $PIPELINE_LOG 2> $ERROR_LOG
-    check_error
+    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders table"
+    # ParseHeaders.py table \
+    #     -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID --failed \
+    #     --outname "${OUTNAME}-uid_cluster-pass" --outdir "${LOGDIR}" \
+    #     >> $PIPELINE_LOG 2> $ERROR_LOG
+    # check_error
 
-    #*
-    PATH_SCRIPT_UID="/home/jqzhou/code/docker/wu_presto/scripts/filter_uid_by_size.R"
-    UID_LB=20
-    UID_UB=20000
-    UID_SUBSAMPLE=5000
+    # #*
+    # PATH_SCRIPT_UID="/home/jqzhou/code/docker/wu_presto/scripts/filter_uid_by_size.R"
+    # UID_LB=20
+    # UID_UB=20000
+    # UID_SUBSAMPLE=5000
 
-    # Subsample INDEX_UIDs for EE set
-    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "Subsample INDEX_UIDs"
-    "${PATH_SCRIPT_UID}" \
-        --input "${LOGDIR}/${OUTNAME}-uid_cluster-pass_headers.tab" \
-        --output "${OUTNAME}-uid_cluster-pass_sample.tab" \
-        --field INDEX_UID \
-        --LB "${UID_LB}" --UB "${UID_UB}" --sampleSize "${UID_SUBSAMPLE}"
+    # # Subsample INDEX_UIDs for EE set
+    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "Subsample INDEX_UIDs"
+    # "${PATH_SCRIPT_UID}" \
+    #     --input "${LOGDIR}/${OUTNAME}-uid_cluster-pass_headers.tab" \
+    #     --output "${OUTNAME}-uid_cluster-pass_sample.tab" \
+    #     --field INDEX_UID \
+    #     --LB "${UID_LB}" --UB "${UID_UB}" --sampleSize "${UID_SUBSAMPLE}"
 
     # Subset ${OUTNAME}-uid_cluster-pass.fastq for EE set
     # [outname]_selected.fastq
@@ -554,7 +554,6 @@ if $BOOL_MID; then
         -s "${OUTNAME}-uid_cluster-pass.fastq" \
         -f INDEX_UID \
         -t "${OUTNAME}-uid_cluster-pass_sample.tab" \
-        --failed \
         --outname "${OUTNAME}-uid_cluster-pass" \
         >> $PIPELINE_LOG 2> $ERROR_LOG
     check_error
