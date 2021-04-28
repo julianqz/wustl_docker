@@ -435,8 +435,8 @@ if $BOOL_MID; then
     # Define log files
     LOGDIR="logs"
     REPORTDIR="report"
-    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_2.log" #&
-    ERROR_LOG="${LOGDIR}/pipeline-indexing_2.err" #&
+    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_3.log" #&
+    ERROR_LOG="${LOGDIR}/pipeline-indexing_3.err" #&
     mkdir -p ${LOGDIR}
     mkdir -p ${REPORTDIR}
     date > $PIPELINE_LOG
@@ -516,7 +516,13 @@ if $BOOL_MID; then
     #     >> $PIPELINE_LOG 2> $ERROR_LOG
     # check_error
 
-    # 
+    # subsample
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
+    SplitSeq.py sample \
+        -s "${OUTNAME}-uid_cluster-pass.fastq" -n "${N_SUBSAMPLE}" \
+        --outname "${OUTNAME}-uid" --outdir . \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error    
     
     # defaults:
     #   -n: min num of seqs needed to consider a set: 20
@@ -528,7 +534,7 @@ if $BOOL_MID; then
 
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
     EstimateError.py set \
-        -s "${OUTNAME}-uid_cluster-pass.fastq" \
+        -s "${OUTNAME}-uid_sample1-n${N_SUBSAMPLE}.fastq" \
         -f INDEX_UID \
         --nproc "${NPROC}" \
         --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
