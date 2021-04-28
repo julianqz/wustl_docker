@@ -547,16 +547,16 @@ if $BOOL_MID; then
     #     --field INDEX_UID \
     #     --LB "${UID_LB}" --UB "${UID_UB}" --sampleSize "${UID_SUBSAMPLE}"
 
-    # Subset ${OUTNAME}-uid_cluster-pass.fastq for EE set
-    # [outname]_selected.fastq
-    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq select"
-    SplitSeq.py select \
-        -s "${OUTNAME}-uid_cluster-pass.fastq" \
-        -f INDEX_UID \
-        -t "${OUTNAME}-uid_cluster-pass_sample.tab" \
-        --outname "${OUTNAME}-uid_cluster-pass" \
-        >> $PIPELINE_LOG 2> $ERROR_LOG
-    check_error
+    # # Subset ${OUTNAME}-uid_cluster-pass.fastq for EE set
+    # # [outname]_selected.fastq
+    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq select"
+    # SplitSeq.py select \
+    #     -s "${OUTNAME}-uid_cluster-pass.fastq" \
+    #     -f INDEX_UID \
+    #     -t "${OUTNAME}-uid_cluster-pass_sample.tab" \
+    #     --outname "${OUTNAME}-uid_cluster-pass" \
+    #     >> $PIPELINE_LOG 2> $ERROR_LOG
+    # check_error
 
     
     # defaults:
