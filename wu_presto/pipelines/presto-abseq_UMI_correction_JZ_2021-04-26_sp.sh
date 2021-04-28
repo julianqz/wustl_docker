@@ -435,8 +435,8 @@ if $BOOL_MID; then
     # Define log files
     LOGDIR="logs"
     REPORTDIR="report"
-    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_3.log" #&
-    ERROR_LOG="${LOGDIR}/pipeline-indexing_3.err" #&
+    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_4.log" #&
+    ERROR_LOG="${LOGDIR}/pipeline-indexing_4.err" #&
     mkdir -p ${LOGDIR}
     mkdir -p ${REPORTDIR}
     date > $PIPELINE_LOG
@@ -516,13 +516,16 @@ if $BOOL_MID; then
     #     >> $PIPELINE_LOG 2> $ERROR_LOG
     # check_error
 
-    # # subsample
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
-    # SplitSeq.py sample \
-    #     -s "${OUTNAME}-uid_cluster-pass.fastq" -n "${N_SUBSAMPLE}" \
-    #     --outname "${OUTNAME}-uid" --outdir . \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error    
+    #*
+    UID_SUBSAMPLE=100000
+
+    # subsample
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
+    SplitSeq.py sample \
+        -s "${OUTNAME}-uid_cluster-pass.fastq" -n "${UID_SUBSAMPLE}" \
+        --outname "${OUTNAME}-uid" --outdir . \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error    
 
     # Tabulate INDEX_UID
     # [outname]_headers.tab
@@ -567,9 +570,12 @@ if $BOOL_MID; then
     #   --maxdiv: specify to calc nucleotide diversity of each read group and exclude
     #             groups which exceed the given diversity thresold: None
 
+    # -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
+
     printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
     EstimateError.py set \
-        -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
+        -s "${OUTNAME}-uid_sample1-n${UID_SUBSAMPLE}.fastq" \
+        -n 5 \
         -f INDEX_UID \
         --nproc "${NPROC}" \
         --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
