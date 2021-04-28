@@ -33,6 +33,7 @@ tab_2 = tab[bool]
 # sample from tab_2
 n_sample = min(length(tab_2), opt$sampleSize)
 
+set.seed(97458723)
 tab_2_sub = tab_2[sample(x=1:length(tab_2), size=n_sample, replace=F)]
 
 # prepare tab_2_sub for export
