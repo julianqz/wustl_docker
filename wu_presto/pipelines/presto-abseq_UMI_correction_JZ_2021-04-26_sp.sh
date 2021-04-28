@@ -533,7 +533,7 @@ if $BOOL_MID; then
     # [outname]_headers.tab
     # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders table"
     # ParseHeaders.py table \
-    #     -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID --failed \
+    #     -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID SAMPLE --failed \
     #     --outname "${OUTNAME}-uid_cluster-pass" --outdir "${LOGDIR}" \
     #     >> $PIPELINE_LOG 2> $ERROR_LOG
     # check_error
@@ -564,32 +564,35 @@ if $BOOL_MID; then
     # check_error
 
     
-    # defaults:
-    #   -n: min num of seqs needed to consider a set: 20
-    #   --mode: method for determining consensus sequence: freq (alternative is qual)
-    #   --freq: MIN_FREQ: 0.6
-    #   -q: MIN_QUAL: 0
-    #   --maxdiv: specify to calc nucleotide diversity of each read group and exclude
-    #             groups which exceed the given diversity thresold: None
+    # # defaults:
+    # #   -n: min num of seqs needed to consider a set: 20
+    # #   --mode: method for determining consensus sequence: freq (alternative is qual)
+    # #   --freq: MIN_FREQ: 0.6
+    # #   -q: MIN_QUAL: 0
+    # #   --maxdiv: specify to calc nucleotide diversity of each read group and exclude
+    # #             groups which exceed the given diversity thresold: None
 
-    # -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
-    # -s "${OUTNAME}-uid_sample1-n${UID_SUBSAMPLE}.fastq" \
-    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
-    EstimateError.py set \
-        -s "${OUTNAME}-uid_sample1-n3444378.fastq" \
-        -n 5 \
-        -f INDEX_UID \
-        --nproc "${NPROC}" \
-        --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
-        >> $PIPELINE_LOG 2> $ERROR_LOG
-    check_error
+    # # -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
+    # # -s "${OUTNAME}-uid_sample1-n${UID_SUBSAMPLE}.fastq" \
+    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
+    # EstimateError.py set \
+    #     -s "${OUTNAME}-uid_sample1-n3444378.fastq" \
+    #     -n 5 \
+    #     -f INDEX_UID \
+    #     --nproc "${NPROC}" \
+    #     --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
+    #     >> $PIPELINE_LOG 2> $ERROR_LOG
+    # check_error
 
 
-    TABLE_SET="${OUTDIR}/${OUTNAME}_threshold-set.tab"
+    # TABLE_SET="${OUTDIR}/${OUTNAME}_threshold-set.tab"
 
-    CMD_SET="import pandas as pd; threshold=1-pd.read_table('${TABLE_SET}', index_col='TYPE')['THRESHOLD']['ALL']; print(0.8 if threshold<0.8 else threshold)"
+    # CMD_SET="import pandas as pd; threshold=1-pd.read_table('${TABLE_SET}', index_col='TYPE')['THRESHOLD']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
-    SEQ_THRESHOLD_PERCENT=$(echo -e "${CMD_SET}" | python3)
+    # SEQ_THRESHOLD_PERCENT=$(echo -e "${CMD_SET}" | python3)
+
+    #*
+    SEQ_THRESHOLD_PERCENT=0.8
 
     echo "thresh-set: ${SEQ_THRESHOLD_PERCENT}" &>> "${PATH_LOG}"
 
