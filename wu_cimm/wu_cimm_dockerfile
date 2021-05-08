@@ -59,15 +59,25 @@ ARG VERSION_IGPHYML="1.1.3"
 #   `DOCUMENTATION/VERSIONS/` (2021-02-24 13:25) says `tbl2asn 25.8`
 #ARG VERSION_TBL2ASN="25.8"
 
+#* note: need to tar -zcvf from julianqz/ubuntu:main 
+#*       apparently tar.gz created by tar on MacOS did not work
+
+#* shazam with bug fix
+ARG SOURCE_SHAZAM="shazam_${VERSION_SHAZAM}_fix.tar.gz"
+COPY "${SOURCE_SHAZAM}" .
+
+#* tigger with bug fix
+ARG SOURCE_TIGGER="tigger_${VERSION_TIGGER}_fix.tar.gz"
+COPY "${SOURCE_TIGGER}" .
 
 # Install R pkgs
 
-# ~130s
+# ~287s
 RUN Rscript "${SCRIPT_R_IMM}" \
     "${VERSION_SHAZAM}" "${VERSION_TIGGER}" "${VERSION_SCOPER}" \
-    && rm "${SCRIPT_R_IMM}"
+    && rm "${SCRIPT_R_IMM}" "${SOURCE_SHAZAM}" "${SOURCE_TIGGER}"
 
-# ~900s
+# ~1253s
 RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
 
 #RUN Rscript "${SCRIPT_R_DOWSER}" && rm "${SCRIPT_R_DOWSER}"

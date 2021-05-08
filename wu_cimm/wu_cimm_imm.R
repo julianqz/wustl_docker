@@ -15,7 +15,15 @@ names(VERSIONS_WANTED) = PACKAGES
 
 
 for (pkg in PACKAGES) {
-
-    devtools::install_version(pkg, version=VERSIONS_WANTED[pkg])
-
+    
+    #* special treatment 
+    #* shazam v1.0.2 (need bug fix for distToNearest)
+    #* tigger v1.0.0 (need bug fix for genotypeFasta)
+    if (pkg=="shazam" | pkg=="tigger") {
+        fn = paste0(pkg, "_", VERSIONS_WANTED[pkg], "_fix.tar.gz")
+        devtools::install_local(fn)
+    } else {
+        devtools::install_version(pkg, version=VERSIONS_WANTED[pkg])
+    }
+    
 }
