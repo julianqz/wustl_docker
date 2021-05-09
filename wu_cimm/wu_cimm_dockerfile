@@ -23,7 +23,7 @@ RUN apt-get update && \
 
 # R pkgs to install
 
-ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat')"
+ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat', 'fastcluster', 'corrplot')"
 #ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat', 'dowser')"
 
 
@@ -38,6 +38,8 @@ COPY "${SCRIPT_R_SEURAT}" .
 #ARG SCRIPT_R_DOWSER="wu_cimm_dowser.R"
 #COPY "${SCRIPT_R_DOWSER}" .
 
+ARG SCRIPT_R_OTHER="wu_cimm_other.R"
+COPY "${SCRIPT_R_OTHER}" .
 
 # specify versions of tools
 
@@ -81,6 +83,10 @@ RUN Rscript "${SCRIPT_R_IMM}" \
 RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
 
 #RUN Rscript "${SCRIPT_R_DOWSER}" && rm "${SCRIPT_R_DOWSER}"
+
+RUN Rscript "${SCRIPT_R_OTHER}" \
+    "fastcluster" "corrplot" \
+    && rm "${SCRIPT_R_OTHER}"
 
 
 # Install Python libraries
