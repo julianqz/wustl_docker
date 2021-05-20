@@ -1,0 +1,173 @@
+# specify version of base container
+# via `--build-arg <varname>=<value>` on command line
+# `wu_base:main_[version]`
+
+ARG BASE_CONTAINER
+
+FROM "julianqz/${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+      description="Customized image for preprocessing bulk BCR using Presto-related tools. Built on top of julianqz/${BASE_CONTAINER}."
+
+USER root
+
+
+# script to fetch phix
+# the second "." is /home/jovyan
+
+ARG SCRIPT_PHIX="fetch_phix.sh"
+COPY "./scripts/${SCRIPT_PHIX}" .
+
+# script to install prestor
+
+ARG SCRIPT_R_1="wu_presto_r.R"
+COPY "${SCRIPT_R_1}" .
+
+#* prestor would force re-install knitr to latest
+#  as of 2021-04-21, incompatibility issue with knitr 1.32
+#  force downgrade to knitr 1.31
+
+ARG VERSION_KNITR="1.31"
+ARG SCRIPT_R_2="wu_knitr_r.R"
+COPY "${SCRIPT_R_2}" .
+
+
+# specify versions of tools
+# Immcantation suite image uses blast 2.9.0 as of v4.2.0
+# prestor version detected after installation from latest bitbucket source code
+
+ARG VERSION_PRESTO="0.6.2"
+#ARG VERSION_PRESTOR="0.0.6"
+ARG VERSION_BLAST="2.11.0"
+ARG VERSION_CDHIT="4.8.1"
+ARG VERSION_MUSCLE="3.8.425"
+ARG VERSION_VSEARCH="2.13.6"
+
+
+# Install prestor
+# ~60s
+
+RUN Rscript "${SCRIPT_R_1}" && rm "${SCRIPT_R_1}"
+
+#* downgrade knitr to 1.31
+
+RUN Rscript "${SCRIPT_R_2}" "${VERSION_KNITR}" && rm "${SCRIPT_R_2}"
+
+
+# cd-hit installation requires zlib if support for .gz format input file is wanted
+# without `apt-get update`, error if specifying `zlib1g-dev`: Unable to locate package zlib1g-dev
+# to see where zlib is installed: dpkg -L zlib1g-dev
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    zlib1g-dev
+
+
+# Install CD-HIT
+# https://github.com/weizhongli/cdhit
+# To compile without zlib (if you can not install zlib): `make zlib=no && make install`
+
+RUN wget -q --show-progress --no-check-certificate \
+    https://github.com/weizhongli/cdhit/archive/V${VERSION_CDHIT}.tar.gz \
+    && tar -zxf V${VERSION_CDHIT}.tar.gz \
+    && (cd cdhit-${VERSION_CDHIT} && make && make install) \
+    && rm -r V${VERSION_CDHIT}.tar.gz cdhit-${VERSION_CDHIT} \
+    && cd ..
+
+# Install BLAST+ executables
+
+RUN wget -q --show-progress --no-check-certificate \
+    ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${VERSION_BLAST}/ncbi-blast-${VERSION_BLAST}+-x64-linux.tar.gz \
+    && tar -zxf ncbi-blast-${VERSION_BLAST}+-x64-linux.tar.gz \
+    && mkdir -p /usr/local/bin \
+    && mv ncbi-blast-${VERSION_BLAST}+/bin /usr/local/bin/blast \
+    && rm -r ncbi-blast-${VERSION_BLAST}+-x64-linux.tar.gz ncbi-blast-${VERSION_BLAST}+
+
+ENV PATH="${PATH}:/usr/local/bin/blast"
+
+# Install muscle
+
+RUN wget -q --show-progress --no-check-certificate \
+    http://www.drive5.com/muscle/muscle${VERSION_MUSCLE}_binaries.tar.gz \
+    && tar -zxf muscle${VERSION_MUSCLE}_binaries.tar.gz muscle${VERSION_MUSCLE}_i86linux64 \
+    && mv muscle${VERSION_MUSCLE}_i86linux64 /usr/local/bin/muscle \
+    && rm muscle${VERSION_MUSCLE}_binaries.tar.gz
+
+# Install vsearch
+
+RUN wget -q --show-progress --no-check-certificate \
+    http://github.com/torognes/vsearch/releases/download/v${VERSION_VSEARCH}/vsearch-${VERSION_VSEARCH}-linux-x86_64.tar.gz \
+    && tar -zxf vsearch-${VERSION_VSEARCH}-linux-x86_64.tar.gz \
+    && mv vsearch-${VERSION_VSEARCH}-linux-x86_64/bin/vsearch /usr/local/bin/vsearch \
+    && ln -s /usr/local/bin/vsearch /usr/local/bin/usearch \
+    && rm -r vsearch-${VERSION_VSEARCH}-linux-x86_64.tar.gz vsearch-${VERSION_VSEARCH}-linux-x86_64
+
+
+# Download and build phix blast db
+# This should be run AFTER BLAST is installed AND added to PATH
+# There should be a blast db created in /usr/local/share/phix (.n*)
+# Need to mkdir -p and cd first because fetch_phix.sh calls makeblastdb at current dir
+
+RUN mkdir -p /usr/local/share/phix \
+    && cd /usr/local/share/phix \
+    && "/home/jovyan/${SCRIPT_PHIX}" -o /usr/local/share/phix \
+    && rm "/home/jovyan/${SCRIPT_PHIX}"
+
+
+# Install presto
+
+#RUN pip install "presto==${VERSION_PRESTO}"
+
+
+#* Install presto stable version and increase hard-coded memory limit for cd-hit-est
+
+ARG URL_PRESTO="https://bitbucket.org/kleinstein/presto/downloads/presto-${VERSION_PRESTO}.tar.gz"
+
+ARG PY_PRESTO="presto-0.6.2_Applications_JZ-2021-04-27.py"
+ARG PY_EE="presto-0.6.2_EstimateError_JZ-2021-04-28.py"
+
+COPY "./scripts/${PY_PRESTO}" "/home/jovyan/work"
+COPY "./scripts/${PY_EE}" "/home/jovyan/work"
+
+# wouldn't work without --no-cache-dir (complains about permission)
+# wouldn't work if not given a .tar.gz but a directory
+
+RUN cd "/home/jovyan/work" \
+    && wget -q --show-progress --no-check-certificate "${URL_PRESTO}" \
+    && tar -zxf "presto-${VERSION_PRESTO}.tar.gz" \
+    && rm "presto-${VERSION_PRESTO}.tar.gz" \
+    && rm "presto-${VERSION_PRESTO}/presto/Applications.py" \
+    && rm "presto-${VERSION_PRESTO}/bin/EstimateError.py" \
+    && cp "${PY_PRESTO}" "presto-${VERSION_PRESTO}/presto/Applications.py" \
+    && cp "${PY_EE}" "presto-${VERSION_PRESTO}/bin/EstimateError.py" \
+    && tar -zcf "presto_jz.tar.gz" "presto-${VERSION_PRESTO}"/* \
+    && rm -r "presto-${VERSION_PRESTO}" \
+    && pip --no-cache-dir install "/home/jovyan/work/presto_jz.tar.gz" \
+    && rm "${PY_PRESTO}" "${PY_EE}" "presto_jz.tar.gz"
+
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+
+# build info
+
+ARG PATH_INFO="/home/jovyan/work/docker_build_info.txt"
+
+RUN echo "--- wu_presto ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
+    echo "- presto" >> "${PATH_INFO}" && \
+    MaskPrimers.py --version >> "${PATH_INFO}" && \
+    echo "- blast: ${VERSION_BLAST}" >> "${PATH_INFO}" && \
+    echo "  which blast: " $(which blastn) >> "${PATH_INFO}" && \
+    echo "- muscle: ${VERSION_MUSCLE}" >> "${PATH_INFO}" && \
+    echo "  which muscle: " $(which muscle) >> "${PATH_INFO}" && \
+    echo "- vsearch: ${VERSION_VSEARCH}" >> "${PATH_INFO}" && \
+    echo "  which vsearch: " $(which vsearch) >> "${PATH_INFO}" && \
+    echo "- cd-hit: ${VERSION_CDHIT}" >> "${PATH_INFO}" && \
+    echo "  which cd-hit: " $(which cd-hit) >> "${PATH_INFO}" && \
+    echo "- prestor: " >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs='prestor')" >> "${PATH_INFO}" && \
+    echo "- knitr: " >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs='knitr')" >> "${PATH_INFO}"
