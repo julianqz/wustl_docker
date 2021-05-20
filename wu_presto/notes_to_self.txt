@@ -1,0 +1,74 @@
+1) cd-hit memory limit
+
+With presto v0.6.2 (julianqz/wu_presto:ref_0.1.0_lsf), when running ClusterSet,
+ran into the following error with cd-hit:
+
+ERROR:
+    ERROR> Running command: cd-hit-est -i /tmp/936873.tmpdir/tmpat35zpkv -o /tmp/936873.tmpdir/tmpez0pieta -c 0.833333 -s 0.0 -n 3 -d 0 -M 3000 -T 15
+    ================================================================
+    Program: CD-HIT, V4.8.1 (+OpenMP), Apr 22 2021, 07:08:16
+    Command: cd-hit-est -i /tmp/936873.tmpdir/tmpat35zpkv -o
+             /tmp/936873.tmpdir/tmpez0pieta -c 0.833333 -s 0.0 -n 3
+             -d 0 -M 3000 -T 15
+    
+    Started: Tue Apr 27 14:20:16 2021
+    ================================================================
+                                Output                              
+    ----------------------------------------------------------------
+    Your word length is 3, using 4 may be faster!
+    total seq: 9676794
+    longest and shortest : 17 and 17
+    Total letters: 164505498
+    Sequences have been sorted
+    
+    Fatal Error:
+    not enough memory, please set -M option greater than 3526
+    
+    Program halted !!
+    
+    
+    Approximated minimal memory consumption:
+    Sequence        : 2278M
+    Buffer          : 15 X 60M = 900M
+    Table           : 2 X 64M = 128M
+    Miscellaneous   : 119M
+    Total           : 3426M
+    
+Solution: increase memory limit for cd-hit (julianqz/wu_presto:ref_0.1.1_lsf)
+
+
+2) EE set bug & design flaw
+
+With presto v0.6.2 (both julianqz/wu_presto:ref_0.1.0_lsf and _0.1.1_lsf),
+ran into the following error with EE set:
+
+   5: EstimateError set        00:26 04/28/21
+ERROR:
+    /opt/conda/lib/python3.8/site-packages/numpy/core/fromnumeric.py:3419: RuntimeWarning: Mean of empty slice.
+      return _methods._mean(a, axis=axis, dtype=dtype,
+    /opt/conda/lib/python3.8/site-packages/numpy/core/_methods.py:188: RuntimeWarning: invalid value encountered in double_scalars
+      ret = ret.dtype.type(ret / rcount)
+    Process Process-17:
+    Traceback (most recent call last):
+      File "/opt/conda/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+        self.run()
+      File "/opt/conda/lib/python3.8/multiprocessing/process.py", line 108, in run
+        self._target(*self._args, **self._kwargs)
+      File "/opt/conda/bin/EstimateError.py", line 367, in collectEEQueue
+        int(np.mean([index for index in np.argsort(dist[:int(len(dist)*0.75)]) \
+    ValueError: cannot convert float NaN to integer
+    ERROR> Exiting due to child process error.
+    NOTICE> Terminating child processes...  Done.
+
+See details at:
+
+- https://benchling.com/s/etr-ykOP13GvhNjClET048ng
+
+- https://bitbucket.org/kleinstein/presto/issues/83/fatal-estimateerrorpy-set-error-after
+
+Solution:
+
+1) julianqz/wu_presto:ref_0.1.1d_lsf tried to debug by asking EE set to output its intermediate
+   results right before crashing
+
+2) skip EE set and use 0.8 as clustering threshold
