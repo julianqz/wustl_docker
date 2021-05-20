@@ -1,5 +1,10 @@
 #!/opt/conda/bin/Rscript
 
+# Subsample up to opt$sampleSize number of UIDs with 
+# group sizes > opt$LB and < opt$UB
+
+# Output as opt$output with 2 cols: opt$field and SEQCOUNT
+
 suppressPackageStartupMessages(require(optparse))
 
 option_list = list(
