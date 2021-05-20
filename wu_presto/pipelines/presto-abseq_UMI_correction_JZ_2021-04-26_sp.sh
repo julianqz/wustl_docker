@@ -8,8 +8,6 @@
 # Date:    2018.06.18
 #
 # Adapted by Julian Q Zhou, 2021-04-26
-#
-#
 
 
 # Print usage
@@ -411,9 +409,9 @@ if $BOOL_PRE; then
 
 else
     if $FILTER_LOWQUAL; then
-        STEP=5
+        STEP=6
     else
-        STEP=4
+        STEP=5
     fi
 fi
 
@@ -435,8 +433,8 @@ if $BOOL_MID; then
     # Define log files
     LOGDIR="logs"
     REPORTDIR="report"
-    PIPELINE_LOG="${LOGDIR}/pipeline-indexing_5b.log" #&
-    ERROR_LOG="${LOGDIR}/pipeline-indexing_5b.err" #&
+    PIPELINE_LOG="${LOGDIR}/pipeline-indexing.log"
+    ERROR_LOG="${LOGDIR}/pipeline-indexing.err" 
     mkdir -p ${LOGDIR}
     mkdir -p ${REPORTDIR}
     date > $PIPELINE_LOG
@@ -460,139 +458,182 @@ if $BOOL_MID; then
     STEP_IDX=4 #&
 
     # concat
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "cat"
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "cat"
     
     # echo "concat:"
-    # ls "${OUTDIR_OVERALL}"/*/*-INDEX_reheader.fastq
-    # cat "${OUTDIR_OVERALL}"/*/*-INDEX_reheader.fastq > JOIN.fastq
+    ls "${OUTDIR_OVERALL}"/*/*-INDEX_reheader.fastq
+    cat "${OUTDIR_OVERALL}"/*/*-INDEX_reheader.fastq > JOIN.fastq
 
     # echo "concat:"
-    # ls "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass_convert-pass.fastq
-    # cat "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass_convert-pass.fastq > JOIN-R1.fastq
+    ls "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass_convert-pass.fastq
+    cat "${OUTDIR_OVERALL}"/*/*-R1_primers-pass_pair-pass_convert-pass.fastq > JOIN-R1.fastq
     
     # echo "concat:"
-    # ls "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass_convert-pass.fastq
-    # cat "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass_convert-pass.fastq > JOIN-R2.fastq
+    ls "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass_convert-pass.fastq
+    cat "${OUTDIR_OVERALL}"/*/*-R2_primers-pass_pair-pass_convert-pass.fastq > JOIN-R2.fastq
     
 
-    # # subsample
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
-    # SplitSeq.py sample \
-    #     -s "JOIN.fastq" -n "${N_SUBSAMPLE}" \
-    #     --outname "${OUTNAME}" --outdir . \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error
+    # subsample
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
+    SplitSeq.py sample \
+        -s "JOIN.fastq" -n "${N_SUBSAMPLE}" \
+        --outname "${OUTNAME}" --outdir . \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error
 
-    # # 
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError barcode"
-    # EstimateError.py barcode \
-    #     -s "${OUTNAME}_sample1-n${N_SUBSAMPLE}.fastq" \
-    #     -f BARCODE \
-    #     --outname "${OUTNAME}" --outdir . \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error
+    # 
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError barcode"
+    EstimateError.py barcode \
+        -s "${OUTNAME}_sample1-n${N_SUBSAMPLE}.fastq" \
+        -f BARCODE \
+        --outname "${OUTNAME}" --outdir . \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error
 
 
-    # TABLE_UID="${OUTDIR}/${OUTNAME}_threshold-barcode.tab"
+    TABLE_UID="${OUTDIR}/${OUTNAME}_threshold-barcode.tab"
     
-    # CMD_UID="import pandas as pd; threshold=1-pd.read_table('${TABLE_UID}', index_col='TYPE')['THRESHOLD']['ALL']; print(0.8 if threshold<0.8 else threshold)"
+    CMD_UID="import pandas as pd; threshold=1-pd.read_table('${TABLE_UID}', index_col='TYPE')['THRESHOLD']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
-    # UID_THRESHOLD_PERCENT=$(echo -e "${CMD_UID}" | python3)
+    UID_THRESHOLD_PERCENT=$(echo -e "${CMD_UID}" | python3)
 
-    # echo "thresh-barcode: ${UID_THRESHOLD_PERCENT}" &>> "${PATH_LOG}"
+    echo "thresh-barcode: ${UID_THRESHOLD_PERCENT}" &>> "${PATH_LOG}"
 
 
-    # # cluster barcodes
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ClusterSets barcode"
-    # ClusterSets.py barcode \
-    #     -s "JOIN.fastq" \
-    #     -f BARCODE \
-    #     -k INDEX_UID \
-    #     --ident "${UID_THRESHOLD_PERCENT}" \
-    #     --cluster cd-hit-est \
-    #     --prefix "u" \
-    #     --nproc "${NPROC}" \
-    #     --outname "${OUTNAME}-uid" --outdir . \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error
+    # cluster barcodes
+    printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ClusterSets barcode"
+    ClusterSets.py barcode \
+        -s "JOIN.fastq" \
+        -f BARCODE \
+        -k INDEX_UID \
+        --ident "${UID_THRESHOLD_PERCENT}" \
+        --cluster cd-hit-est \
+        --prefix "u" \
+        --nproc "${NPROC}" \
+        --outname "${OUTNAME}-uid" --outdir . \
+        >> $PIPELINE_LOG 2> $ERROR_LOG
+    check_error
 
-    #*
-    # UID_SUBSAMPLE=100
+    #* skipping EE set
 
-    # # subsample
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
-    # SplitSeq.py sample \
-    #     -s "${OUTNAME}-uid_cluster-pass.fastq" \
-    #     -n "${UID_SUBSAMPLE}" \
-    #     -f INDEX_UID \
-    #     --outname "${OUTNAME}-uid" --outdir . \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error    
+    # EE set contains major bug in code as of presto v0.6.2
+    # EE set algorithm also contains major flaw
+    # overall not hugely helpful for estimating threshold ==> skipped and use 0.8 as threshold instead
+    # see:
+    # https://benchling.com/s/etr-ykOP13GvhNjClET048ng
+    # https://bitbucket.org/kleinstein/presto/issues/83/fatal-estimateerrorpy-set-error-after
 
-    # Tabulate INDEX_UID
-    # [outname]_headers.tab
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders table"
-    # ParseHeaders.py table \
-    #     -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID SAMPLE --failed \
-    #     --outname "${OUTNAME}-uid_cluster-pass" --outdir "${LOGDIR}" \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error
+    RUN_EE_SET=false
 
-    # #*
-    # PATH_SCRIPT_UID="/home/jqzhou/code/docker/wu_presto/scripts/filter_uid_by_size.R"
-    # UID_LB=20
-    # UID_UB=20000
-    # UID_SUBSAMPLE=5000
+    if $RUN_EE_SET; then
 
-    # # Subsample INDEX_UIDs for EE set
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "Subsample INDEX_UIDs"
-    # "${PATH_SCRIPT_UID}" \
-    #     --input "${LOGDIR}/${OUTNAME}-uid_cluster-pass_headers.tab" \
-    #     --output "${OUTNAME}-uid_cluster-pass_sample.tab" \
-    #     --field INDEX_UID \
-    #     --LB "${UID_LB}" --UB "${UID_UB}" --sampleSize "${UID_SUBSAMPLE}"
+        APPROACH_1=false
 
-    # # Subset ${OUTNAME}-uid_cluster-pass.fastq for EE set
-    # # [outname]_selected.fastq
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq select"
-    # SplitSeq.py select \
-    #     -s "${OUTNAME}-uid_cluster-pass.fastq" \
-    #     -f INDEX_UID \
-    #     -t "${OUTNAME}-uid_cluster-pass_sample.tab" \
-    #     --outname "${OUTNAME}-uid_cluster-pass" \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error
+        if $APPROACH_1; then
+
+            ## Approach 1
+            
+            # A way to compress huge UMI groups that dominate the read counts:
+            # specify -f to randomly sample evenly from sequences with the same value in the specified field
+            # Eg: -f UMI -n 100 will sample up to 100 sequences from each unique UMI
+
+            #*
+            UID_SUBSAMPLE=100
+
+            # subsample
+            # -n: Maximum number of sequences to sample from each file, field or annotation set. 
+            #     The default behavior, without the -f argument, is to sample from the complete 
+            #     set of sequences in the input file.
+
+            # No easy way to predict the output name. With -n 100, got "JOIN-uid_sample1-n3444378.fastq"
+            
+            printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq sample"
+            SplitSeq.py sample \
+                -s "${OUTNAME}-uid_cluster-pass.fastq" \
+                -n "${UID_SUBSAMPLE}" \
+                -f INDEX_UID \
+                --outname "${OUTNAME}-uid" --outdir . \
+                >> $PIPELINE_LOG 2> $ERROR_LOG
+            check_error
+
+        else            
+
+            ## Approach 2
+
+            # 2a) Tabulate INDEX_UID
+            # [outname]_headers.tab
+            printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "ParseHeaders table"
+            ParseHeaders.py table \
+                -s "${OUTNAME}-uid_cluster-pass.fastq" -f INDEX_UID SAMPLE --failed \
+                --outname "${OUTNAME}-uid_cluster-pass" --outdir "${LOGDIR}" \
+                >> $PIPELINE_LOG 2> $ERROR_LOG
+            check_error
+
+            # 2b) Subsample INDEX_UIDs for EE set
+            # subsample up to UID_SUBSAMPLE number of UIDs with group sizes
+            # > UID_LB and < UID_UB
+
+            #*
+            PATH_SCRIPT_UID="/home/jqzhou/code/docker/wu_presto/scripts/filter_uid_by_size.R"
+            UID_LB=20
+            UID_UB=20000
+            UID_SUBSAMPLE=5000
+
+            printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "Subsample INDEX_UIDs"
+            "${PATH_SCRIPT_UID}" \
+                --input "${LOGDIR}/${OUTNAME}-uid_cluster-pass_headers.tab" \
+                --output "${OUTNAME}-uid_cluster-pass_sample.tab" \
+                --field INDEX_UID \
+                --LB "${UID_LB}" --UB "${UID_UB}" --sampleSize "${UID_SUBSAMPLE}"
+
+            # 2c) Subset ${OUTNAME}-uid_cluster-pass.fastq for EE set
+            # [outname]_selected.fastq
+            printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "SplitSeq select"
+            SplitSeq.py select \
+                -s "${OUTNAME}-uid_cluster-pass.fastq" \
+                -f INDEX_UID \
+                -t "${OUTNAME}-uid_cluster-pass_sample.tab" \
+                --outname "${OUTNAME}-uid_cluster-pass" \
+                >> $PIPELINE_LOG 2> $ERROR_LOG
+            check_error
+
+        fi
 
     
-    # # defaults:
-    # #   -n: min num of seqs needed to consider a set: 20
-    # #   --mode: method for determining consensus sequence: freq (alternative is qual)
-    # #   --freq: MIN_FREQ: 0.6
-    # #   -q: MIN_QUAL: 0
-    # #   --maxdiv: specify to calc nucleotide diversity of each read group and exclude
-    # #             groups which exceed the given diversity thresold: None
+        ## EE set
 
-    # # -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
-    # # -s "${OUTNAME}-uid_sample1-n${UID_SUBSAMPLE}.fastq" \
-    # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
-    # EstimateError.py set \
-    #     -s "${OUTNAME}-uid_sample1-n3444378.fastq" \
-    #     -n 5 \
-    #     -f INDEX_UID \
-    #     --nproc "${NPROC}" \
-    #     --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
-    #     >> $PIPELINE_LOG 2> $ERROR_LOG
-    # check_error
+        # defaults:
+        #   -n: min num of seqs needed to consider a set: 20
+        #   --mode: method for determining consensus sequence: freq (alternative is qual)
+        #   --freq: MIN_FREQ: 0.6
+        #   -q: MIN_QUAL: 0
+        #   --maxdiv: specify to calc nucleotide diversity of each read group and exclude
+        #             groups which exceed the given diversity thresold: None
+
+        # Approach 1 (ck number after `n`): -s "${OUTNAME}-uid_sample1-n3444378.fastq" \
+        # Approach 2:                       -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
+        printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP_IDX)) 24 "EstimateError set"
+        EstimateError.py set \
+            -s "${OUTNAME}-uid_cluster-pass_selected.fastq" \
+            -n 5 \
+            -f INDEX_UID \
+            --nproc "${NPROC}" \
+            --outname "${OUTNAME}" --outdir . --log "${LOGDIR}/EstimateErrorSet.log" \
+            >> $PIPELINE_LOG 2> $ERROR_LOG
+        check_error
 
 
-    # TABLE_SET="${OUTDIR}/${OUTNAME}_threshold-set.tab"
+        TABLE_SET="${OUTDIR}/${OUTNAME}_threshold-set.tab"
 
-    # CMD_SET="import pandas as pd; threshold=1-pd.read_table('${TABLE_SET}', index_col='TYPE')['THRESHOLD']['ALL']; print(0.8 if threshold<0.8 else threshold)"
+        CMD_SET="import pandas as pd; threshold=1-pd.read_table('${TABLE_SET}', index_col='TYPE')['THRESHOLD']['ALL']; print(0.8 if threshold<0.8 else threshold)"
 
-    # SEQ_THRESHOLD_PERCENT=$(echo -e "${CMD_SET}" | python3)
+        SEQ_THRESHOLD_PERCENT=$(echo -e "${CMD_SET}" | python3)
 
-    #*
-    SEQ_THRESHOLD_PERCENT=0.8
+    else
+        #*
+        SEQ_THRESHOLD_PERCENT=0.8
+    fi
+
 
     echo "thresh-set: ${SEQ_THRESHOLD_PERCENT}" &>> "${PATH_LOG}"
 
