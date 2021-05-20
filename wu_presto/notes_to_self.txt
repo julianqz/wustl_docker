@@ -71,4 +71,6 @@ Solution:
 1) julianqz/wu_presto:ref_0.1.1d_lsf tried to debug by asking EE set to output its intermediate
    results right before crashing
 
+   NOTE that the output path of EE set debugging files is hard-coded 
+
 2) skip EE set and use 0.8 as clustering threshold
