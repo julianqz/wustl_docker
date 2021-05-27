@@ -46,7 +46,7 @@
 # e.g.: `docker run --rm -it julianqz/wu_base:main_0.1.0 bash`
 
 
-cd "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/"
+cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
 docker build --file wu_base/wu_base_dockerfile --tag julianqz/wu_base:main_0.1.0 ./wu_base
 
@@ -59,29 +59,29 @@ docker build --file wu_cimm/wu_cimm_dockerfile --tag julianqz/wu_cimm:main_0.1.1
 # imgt refs
 
 ./wu_ref/wu_ref_get_imgt.sh \
-	-a "/Users/jkewz/Dropbox (recherche)/common/germline_refs/imgt_zip/" \
-	-b "/Users/jkewz/Dropbox (recherche)/common/germline_refs/imgt_select/" \
-	-c "/Users/jkewz/Dropbox (recherche)/common/germline_refs/imgt_download.log" \
+	-a "/Users/jqz/Dropbox/common/germline_refs/imgt_zip/" \
+	-b "/Users/jqz/Dropbox/common/germline_refs/imgt_select/" \
+	-c "/Users/jqz/Dropbox/common/germline_refs/imgt_download.log" \
 	-d true
 
 Rscript ./wu_ref/wu_ref_imgt_dedup.R "202113-2" #*
 
 # note context
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_presto:ref_0.1.1 --build-arg BASE_CONTAINER="wu_presto:main_0.1.1" \
-	"/Users/jkewz/Dropbox (recherche)/"
+	"/Users/jqz/Dropbox/"
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_cimm:ref_0.1.1 --build-arg BASE_CONTAINER="wu_cimm:main_0.1.1" \
-	"/Users/jkewz/Dropbox (recherche)/"
+	"/Users/jqz/Dropbox/"
 
 # add lsf
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/dockerfile_lsf" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/dockerfile_lsf" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_cimm:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.1.1" .
 
 docker push julianqz/wu_presto:ref_0.1.1_lsf
@@ -96,11 +96,11 @@ docker push julianqz/wu_cimm:ref_0.1.1_lsf
 docker build --file wu_presto/wu_presto_dockerfile_debug --tag julianqz/wu_presto:main_0.1.1d \
 	--build-arg BASE_CONTAINER="wu_base:main_0.1.0" ./wu_presto
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_presto:ref_0.1.1d --build-arg BASE_CONTAINER="wu_presto:main_0.1.1d" \
-	"/Users/jkewz/Dropbox (recherche)/"
+	"/Users/jqz/Dropbox/"
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/dockerfile_lsf" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_presto:ref_0.1.1d_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1d" .
 
 docker push julianqz/wu_presto:ref_0.1.1d_lsf
@@ -109,13 +109,13 @@ docker push julianqz/wu_presto:ref_0.1.1d_lsf
 
 ### ubuntu
 
-cd "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/"
+cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
 docker build --file DockerFile_ubuntu_main --tag julianqz/ubuntu:main .
 
 docker push julianqz/ubuntu:main
 
-docker build --file "/Users/jkewz/Dropbox (recherche)/wustl/code/docker/dockerfile_lsf" \
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/ubuntu:lsf --build-arg BASE_CONTAINER="ubuntu:main" .
 
 docker push julianqz/ubuntu:lsf

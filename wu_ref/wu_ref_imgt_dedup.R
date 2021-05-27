@@ -5,9 +5,9 @@ ARGS = commandArgs(trailingOnly=T)
 stopifnot(length(ARGS)==1)
 
 #*
-PATH_WORK = paste0("~/Dropbox (recherche)/common/germline_refs/imgt_select/IMGT_vquest_release",
+PATH_WORK = paste0("~/Dropbox/common/germline_refs/imgt_select/IMGT_vquest_release",
                    ARGS[1])
-PATH_SCRIPT = "~/Dropbox (recherche)/wustl/code/main/shared/bcr_sequence_processing.R"
+PATH_SCRIPT = "~/Dropbox/wustl/code/main/shared/bcr_sequence_processing.R"
 
 
 source(PATH_SCRIPT)
