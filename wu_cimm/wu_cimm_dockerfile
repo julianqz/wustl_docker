@@ -50,6 +50,9 @@ ARG VERSION_TIGGER="1.0.0"
 ARG VERSION_SCOPER="1.1.0"
 
 ARG VERSION_SCANPY="1.7.2"
+ARG VERSION_SCIKIT_MISC="0.1.4"
+# multicore tsne won't install (docker or mac)
+#ARG VERSION_MULTICORE_TSNE="0.1"
 ARG VERSION_SEURAT="4.0.1"
 
 ARG VERSION_PHYLIP="3.697"
@@ -94,6 +97,11 @@ RUN Rscript "${SCRIPT_R_OTHER}" \
 RUN pip install "changeo==${VERSION_CHANGEO}"
 
 RUN pip install "scanpy[leiden]==${VERSION_SCANPY}"
+
+RUN pip install "scikit-misc==${VERSION_SCIKIT_MISC}"
+
+#RUN pip install "cmake"
+#RUN pip install "MulticoreTSNE==${VERSION_MULTICORE_TSNE}"
 
 
 # install igphyml
@@ -146,6 +154,8 @@ RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     echo "- changeo:" >> "${PATH_INFO}" && \
     MakeDb.py --version >> "${PATH_INFO}" && \
     echo "- Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
+    echo "- scikit-misc: ${VERSION_SCIKIT_MISC}" >> "${PATH_INFO}" && \
+    #echo "- MulticoreTSNE: ${VERSION_MULTICORE_TSNE}" >> "${PATH_INFO}" && \
     echo "- PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
     echo "  " $(which dnapars) >> "${PATH_INFO}" && \
     echo "- IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
