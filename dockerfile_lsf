@@ -8,6 +8,8 @@ FROM "julianqz/${BASE_CONTAINER}"
 LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
       description="julianqz/${BASE_CONTAINER} plus /bin/sh for LSF."
 
+# in order for scanpy to load on RIS
+ENV NUMBA_CACHE_DIR="/tmp/numba_cache"
 
 # LSF system on RIS at WUSTL needs this
 ENTRYPOINT ["/bin/sh"]

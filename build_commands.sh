@@ -10,6 +10,8 @@
 # cimm   0.1.0  initial
 #        0.1.1  bug fixes for shazam::distToNearest (v1.0.2) and 
 #                             tigger::genotypeFasta (v1.0.0)
+#               scikit-misc
+#               LSF env variable for scanpy to work on RIS (ref_0.1.1_lsf)
 
 
 
