@@ -14,10 +14,10 @@
 print_usage() {
     echo -e "Usage: `basename $0` [OPTIONS]"
     echo -e "  -a  Path to sample_list_${PROJ_ID}.txt"                                                        #*JZ
-    echo -e "  -b  Path to directory containing all input FASTQs."                                            #*JZ
-    echo -e "  -c  Suffix of Read 1 FASTQ. Sequence beginning with the C-region or J-segment).\n" \
+    echo -e "  -b  Path to directory containing all input FASTQs. Ignored if skipping phix removal."          #*JZ
+    echo -e "  -c  Suffix of Read 1 FASTQ. Sequence beginning with the C-region or J-segment). Ignored if skipping phix removal.\n" \
             "      E.g. for [sample_id]_R1.fastq, the suffix should be '_R1.fastq'."                          #*JZ
-    echo -e "  -d  Suffix of Read 2 FASTQ. Sequence beginning with the leader or V-segment).\n" \
+    echo -e "  -d  Suffix of Read 2 FASTQ. Sequence beginning with the leader or V-segment). Ignored if skipping phix removal.\n" \
             "      E.g. for [sample_id]_R2.fastq, the suffix should be '_R2.fastq'."                          #*JZ
     echo -e "  -e  Total number of sequences to subsample across samples for choosing clustering thresholds." #*JZ
     echo -e "  -f  Read 1 FASTA primer sequences.\n" \
@@ -62,7 +62,7 @@ while getopts "a:b:c:d:e:f:g:i:j:k:l:m:n:o:p:q:r:s:t:h" OPT; do #*JZ
     a)  PATH_LIST=$(realpath "${OPTARG}")  #*JZ
         PATH_LIST_SET=true                 #*JZ
         ;;
-    b)  PATH_INPUT=$(realpath "${OPTARG}") #*JZ
+    b)  PATH_INPUT=$OPTARG                 #*JZ; do NOT use realpath here (could be "SKIP_PR")
         ;;
     c)  SUFFIX_1=$OPTARG                   #*JZ
         ;; 
@@ -258,6 +258,16 @@ N_LINES=$(wc -l < "${PATH_LIST}")
 echo "N_LINES: ${N_LINES}" &> "${PATH_LOG}"
 
 
+# was phix removal skipped?
+# skipped if PATH_INPUT, SUFFIX_1, SUFFIX_2 all "SKIP_PR"
+
+if [[ ${PATH_INPUT} == "SKIP_PR" ]] && [[ ${SUFFIX_1} == "SKIP_PR" ]] && [[ ${SUFFIX_2} == "SKIP_PR" ]]; then
+    BOOL_SKIP_PR=true
+else
+    BOOL_SKIP_PR=false
+fi
+
+
 ################
 # Pre-indexing #
 ################
@@ -268,16 +278,40 @@ if $BOOL_PRE; then
 
     for ((IDX=1; IDX<=${N_LINES}; IDX++)); do
 
-        # read current line ==> sample ID
-        OUTNAME=$(sed "${IDX}q;d" "${PATH_LIST}") 
+        # readline from csv file
+        CUR_LINE=$(sed "${IDX}q;d" "${PATH_LIST}")
 
-        echo "IDX: ${IDX}; SAMPLE: ${OUTNAME}" &>> "${PATH_LOG}"
+        # split by comma
+        IFS=","
+        read -a strarr <<< "${CUR_LINE}"
 
+        # sample ID
+        OUTNAME=${strarr[0]}
+
+        # path containing input fasta files
+        CUR_PATH_RAW=${strarr[1]}
+
+        # sample input fastq files
+        CUR_FN_1=${strarr[2]}
+        CUR_FN_2=${strarr[3]}
 
         # sample-specific paths to R1 & R2 FASTQs
-        R1_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_1}"
-        R2_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_2}"
+        if ${BOOL_SKIP_PR}; then
+            # if phix removal skipped, use path info provided in csv
+            R1_READS="${CUR_PATH_RAW}/${CUR_FN_1}"
+            R2_READS="${CUR_PATH_RAW}/${CUR_FN_2}"
+        else
+            # if phix removal not skipped, use preset filenames
+            R1_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_1}"
+            R2_READS="${PATH_INPUT}/${OUTNAME}${SUFFIX_2}"
+        fi
 
+
+        echo "IDX: ${IDX}; SAMPLE: ${OUTNAME}" &>> "${PATH_LOG}"
+        echo " - R1: ${R1_READS}" &>> "${PATH_LOG}"
+        echo " - R2: ${R2_READS}" &>> "${PATH_LOG}"
+
+        
         # Check R1 reads
         if [ -e ${R1_READS} ]; then
             R1_READS=$(realpath ${R1_READS})
@@ -724,8 +758,16 @@ if $BOOL_POST; then
 
     for ((IDX=1; IDX<=${N_LINES}; IDX++)); do
 
-        # read current line ==> sample id
-        OUTNAME=$(sed "${IDX}q;d" "${PATH_LIST}") 
+        # readline from csv file
+        CUR_LINE=$(sed "${IDX}q;d" "${PATH_LIST}")
+
+        # split by comma
+        IFS=","
+        read -a strarr <<< "${CUR_LINE}"
+
+        # sample ID
+        OUTNAME=${strarr[0]}
+
 
         echo "IDX: ${IDX}; SAMPLE: ${OUTNAME}" &>> "${PATH_LOG}"
 
