@@ -5,14 +5,16 @@ ARGS = commandArgs(trailingOnly=T)
 stopifnot(length(ARGS)==1)
 
 #*
-PATH_WORK = paste0("~/Dropbox/common/germline_refs/imgt_select/IMGT_vquest_release",
-                   ARGS[1])
+PATH_WORK_1 = "~/Dropbox/common/germline_refs/imgt_select/"
+#PATH_WORK_1 = "~/Dropbox/common/germline_refs/C57BL6/"
+
+PATH_WORK_2 = paste0(PATH_WORK_1, "IMGT_vquest_release", ARGS[1])
 PATH_SCRIPT = "~/Dropbox/wustl/code/main/shared/bcr_sequence_processing.R"
 
 
 source(PATH_SCRIPT)
 
-setwd(PATH_WORK)
+setwd(PATH_WORK_2)
 
 SPECIES = list.files()
 cat("Species:", SPECIES, "\n")
