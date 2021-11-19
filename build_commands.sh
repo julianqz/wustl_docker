@@ -11,6 +11,7 @@
 #        0.1.1  bug fixes for shazam::distToNearest (v1.0.2) and 
 #                             tigger::genotypeFasta (v1.0.0)
 #               scikit-misc
+#               add C57BL6 germline
 #               LSF env variable for scanpy to work on RIS (ref_0.1.1_lsf)
 
 
