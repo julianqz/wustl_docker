@@ -11,15 +11,6 @@ LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
 
 USER root
 
-# add IMGT references downloaded via `wu_ref_imgt_get.sh`
-# remove duplicates via `wu_ref_imgt_dedup.R`
-# /usr/local/share/germline_refs/imgt_select
-
-#*
-ARG VERSION_IMGT_1="202113-2"
-COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
-     "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
-
 
 # install igblast
 # executables: /usr/local/bin/igblast-${version}/bin
@@ -45,6 +36,25 @@ RUN wget -q --show-progress --no-check-certificate \
     && rm -r ncbi-igblast-${VERSION_IGBLAST_1}-x64-linux.tar.gz ncbi-igblast-${VERSION_IGBLAST_1}
 
 
+# add IMGT references downloaded via `wu_ref_imgt_get.sh`
+# remove duplicates via `wu_ref_imgt_dedup.R`
+# /usr/local/share/germline_refs/imgt_select
+
+#*
+ARG VERSION_IMGT_1="202113-2"
+COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
+     "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
+
+# special case
+# Mus musculus C57BL6-specific
+# reported in Alsoussi et al. JI 2020; not downloaded via `wu_ref_imgt_get.sh`
+# remove duplicates via `wu_ref_imgt_dedup.R`
+# /usr/local/share/germline_refs/C57BL6
+ARG VERSION_IMGT_2="202011-3"
+COPY "common/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
+     "/usr/local/share/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}"
+
+
 # make igblast databases
 
 ARG SCRIPT_DB="wu_ref_imgt_igblast.sh"
@@ -54,11 +64,17 @@ RUN "./${SCRIPT_DB}" \
     -i "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
     -v "${VERSION_IMGT_1}" \
     -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
+    -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin"
+
+RUN "./${SCRIPT_DB}" \
+    -i "/usr/local/share/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
+    -v "${VERSION_IMGT_2}" \
+    -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
     -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin" \
     && rm "${SCRIPT_DB}"
 
 # Because there could potentially be multiple versions of igblast installed
-# igblastn is added to PATH (since each version has a `igblastn`)
+# igblastn is not added to PATH (since each version has a `igblastn`)
 
 # Switch back to jovyan to avoid accidental container runs as root
 
@@ -71,7 +87,8 @@ ARG PATH_INFO="work/docker_build_info.txt"
 
 RUN echo "--- wu_ref ---" >> "${PATH_INFO}" && \
     date >> "${PATH_INFO}" && \
-    echo "- IMGT references: release${VERSION_IMGT_1}" >> "${PATH_INFO}" && \
+    echo "- IMGT references (standard): release${VERSION_IMGT_1}" >> "${PATH_INFO}" && \
+    echo "- IMGT references (C57BL6): release${VERSION_IMGT_2}" >> "${PATH_INFO}" && \
     echo "- IgBLAST:" >> "${PATH_INFO}" && \
     echo $(/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin/igblastn -version | head -n 1) >> "${PATH_INFO}"
 
