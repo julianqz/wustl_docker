@@ -6,7 +6,7 @@ ARG BASE_CONTAINER
 
 FROM "julianqz/${BASE_CONTAINER}"
 
-LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
       description="Customized image for preprocessing bulk BCR using Presto-related tools. Built on top of julianqz/${BASE_CONTAINER}."
 
 USER root
@@ -23,11 +23,21 @@ COPY "./scripts/${SCRIPT_PHIX}" .
 ARG SCRIPT_R_1="wu_presto_r.R"
 COPY "${SCRIPT_R_1}" .
 
+#  v0.1
 #* prestor would force re-install knitr to latest
-#  as of 2021-04-21, incompatibility issue with knitr 1.32
+#  as of 2021-04-21, prestor 0.0.6 has incompatibility issue with knitr 1.32
 #  force downgrade to knitr 1.31
 
-ARG VERSION_KNITR="1.31"
+#ARG VERSION_KNITR="1.31"
+
+# v0.2
+# 
+# as of 2021-12-22, prestor 0.0.7 has fixed issue with knitr 1.32
+#                   latest version of knitr is 1.37, but compatibility not tested
+# force downgrade to knitr 1.32 
+
+ARG VERSION_KNITR="1.32"
+
 ARG SCRIPT_R_2="wu_knitr_r.R"
 COPY "${SCRIPT_R_2}" .
 
@@ -36,8 +46,16 @@ COPY "${SCRIPT_R_2}" .
 # Immcantation suite image uses blast 2.9.0 as of v4.2.0
 # prestor version detected after installation from latest bitbucket source code
 
-ARG VERSION_PRESTO="0.6.2"
+# v0.1
+#ARG VERSION_PRESTO="0.6.2"
+# v0.2
+ARG VERSION_PRESTO="0.7.0"
+
+# v0.1
 #ARG VERSION_PRESTOR="0.0.6"
+# v0.2
+#ARG VERSION_PRESTOR="0.0.7"
+
 ARG VERSION_BLAST="2.11.0"
 ARG VERSION_CDHIT="4.8.1"
 ARG VERSION_MUSCLE="3.8.425"
@@ -49,9 +67,24 @@ ARG VERSION_VSEARCH="2.13.6"
 
 RUN Rscript "${SCRIPT_R_1}" && rm "${SCRIPT_R_1}"
 
-#* downgrade knitr to 1.31
+
+# downgrade knitr to 1.3x
 
 RUN Rscript "${SCRIPT_R_2}" "${VERSION_KNITR}" && rm "${SCRIPT_R_2}"
+
+
+# see ubuntu version
+# cat /etc/*ease
+
+# see g++ version
+# g++ --version
+
+# no need to install g++ for v0.1 (Ubuntu 20.04.2 LTS)
+# NEED to install g++ for v0.2 (Ubuntu 20.04.3 LTS)
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    g++
 
 
 # cd-hit installation requires zlib if support for .gz format input file is wanted
@@ -67,8 +100,10 @@ RUN apt-get update && \
 # https://github.com/weizhongli/cdhit
 # To compile without zlib (if you can not install zlib): `make zlib=no && make install`
 
+# V4.8.1.tar.gz compresses to cdhit-4.8.1
+
 RUN wget -q --show-progress --no-check-certificate \
-    https://github.com/weizhongli/cdhit/archive/V${VERSION_CDHIT}.tar.gz \
+    https://github.com/weizhongli/cdhit/archive/refs/tags/V${VERSION_CDHIT}.tar.gz \
     && tar -zxf V${VERSION_CDHIT}.tar.gz \
     && (cd cdhit-${VERSION_CDHIT} && make && make install) \
     && rm -r V${VERSION_CDHIT}.tar.gz cdhit-${VERSION_CDHIT} \
@@ -116,30 +151,31 @@ RUN mkdir -p /usr/local/share/phix \
 
 # Install presto
 
-#RUN pip install "presto==${VERSION_PRESTO}"
+# v0.2
+RUN pip install "presto==${VERSION_PRESTO}"
 
-
+#  v0.1
 #* Install presto stable version and increase hard-coded memory limit for cd-hit-est
 
-ARG URL_PRESTO="https://bitbucket.org/kleinstein/presto/downloads/presto-${VERSION_PRESTO}.tar.gz"
+#ARG URL_PRESTO="https://bitbucket.org/kleinstein/presto/downloads/presto-${VERSION_PRESTO}.tar.gz"
 
-ARG PY_PRESTO="presto-0.6.2_Applications_JZ-2021-04-27.py"
+#ARG PY_PRESTO="presto-0.6.2_Applications_JZ-2021-04-27.py"
 
-COPY "./scripts/${PY_PRESTO}" "/home/jovyan/work"
+#COPY "./scripts/${PY_PRESTO}" "/home/jovyan/work"
 
 # wouldn't work without --no-cache-dir (complains about permission)
 # wouldn't work if not given a .tar.gz but a directory
 
-RUN cd "/home/jovyan/work" \
-    && wget -q --show-progress --no-check-certificate "${URL_PRESTO}" \
-    && tar -zxf "presto-${VERSION_PRESTO}.tar.gz" \
-    && rm "presto-${VERSION_PRESTO}.tar.gz" \
-    && rm "presto-${VERSION_PRESTO}/presto/Applications.py" \
-    && cp "${PY_PRESTO}" "presto-${VERSION_PRESTO}/presto/Applications.py" \
-    && tar -zcf "presto_jz.tar.gz" "presto-${VERSION_PRESTO}"/* \
-    && rm -r "presto-${VERSION_PRESTO}" \
-    && pip --no-cache-dir install "/home/jovyan/work/presto_jz.tar.gz" \
-    && rm "${PY_PRESTO}" "presto_jz.tar.gz"
+#RUN cd "/home/jovyan/work" \
+#    && wget -q --show-progress --no-check-certificate "${URL_PRESTO}" \
+#    && tar -zxf "presto-${VERSION_PRESTO}.tar.gz" \
+#    && rm "presto-${VERSION_PRESTO}.tar.gz" \
+#    && rm "presto-${VERSION_PRESTO}/presto/Applications.py" \
+#    && cp "${PY_PRESTO}" "presto-${VERSION_PRESTO}/presto/Applications.py" \
+#    && tar -zcf "presto_jz.tar.gz" "presto-${VERSION_PRESTO}"/* \
+#    && rm -r "presto-${VERSION_PRESTO}" \
+#    && pip --no-cache-dir install "/home/jovyan/work/presto_jz.tar.gz" \
+#    && rm "${PY_PRESTO}" "presto_jz.tar.gz"
 
 
 # Switch back to jovyan to avoid accidental container runs as root
