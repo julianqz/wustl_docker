@@ -23,53 +23,49 @@ RUN apt-get update && \
 
 # R pkgs to install
 
-ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat', 'fastcluster', 'corrplot')"
-#ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat', 'dowser')"
+ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'dowser', 'Seurat', 'scRepertoire', 'fastcluster', 'corrplot')"
 
 
 # scripts to install R pkgs
 
-ARG SCRIPT_R_IMM="wu_cimm_imm.R"
+ARG SCRIPT_R_IMM="wu_cimm_imm_v0.2.R"
 COPY "${SCRIPT_R_IMM}" .
 
 ARG SCRIPT_R_SEURAT="wu_cimm_seurat.R"
 COPY "${SCRIPT_R_SEURAT}" .
 
-#ARG SCRIPT_R_DOWSER="wu_cimm_dowser.R"
-#COPY "${SCRIPT_R_DOWSER}" .
+ARG SCRIPT_R_BIOCONDUCTOR="wu_cimm_bioconductor_v0.2.R"
+COPY "${SCRIPT_R_BIOCONDUCTOR}" .
 
 ARG SCRIPT_R_OTHER="wu_cimm_other.R"
 COPY "${SCRIPT_R_OTHER}" .
 
 # specify versions of tools
 
-ARG VERSION_CHANGEO="1.0.2"
+ARG VERSION_CHANGEO="1.2.0"
 
-ARG VERSION_SHAZAM="1.0.2"
+ARG VERSION_SHAZAM="1.1.0"
 ARG VERSION_TIGGER="1.0.0"
-ARG VERSION_SCOPER="1.1.0"
+ARG VERSION_SCOPER="1.2.0"
+ARG VERSION_DOWSER="0.1.0"
 
-ARG VERSION_SCANPY="1.7.2"
+ARG VERSION_SCANPY="1.8.2"
 ARG VERSION_SCIKIT_MISC="0.1.4"
-# multicore tsne won't install (docker or mac)
+# multicore tsne won't install (docker or mac); deprecated as of scanpy 1.8.0
 #ARG VERSION_MULTICORE_TSNE="0.1"
-ARG VERSION_SEURAT="4.0.1"
+ARG VERSION_SEURAT="4.0.6"
+
+# no good way to directly control the version of a Bioconductor pkg installed by BiocManager
+# such pkg version is associated with the Bioconductor version itself, which can be specified via BiocManager::install
+#* Bioconductor 3.14 contains scRepertoire 1.4.0 (as of 2021-12-22)
+ARG VERSION_BIOCONDUCTOR="3.14"
 
 ARG VERSION_PHYLIP="3.697"
 ARG VERSION_IGPHYML="1.1.3"
-# dowser version detected after installation from latest bitbucket source code
-#ARG VERSION_DOWSER=""
 
-# tbl2asn version unavail, except that on ftp site, 
-#   `DOCUMENTATION/VERSIONS/` (2021-02-24 13:25) says `tbl2asn 25.8`
-#ARG VERSION_TBL2ASN="25.8"
 
 #* note: need to tar -zcvf from julianqz/ubuntu:main 
 #*       apparently tar.gz created by tar on MacOS did not work
-
-#* shazam with bug fix
-ARG SOURCE_SHAZAM="shazam_${VERSION_SHAZAM}_fix.tar.gz"
-COPY "${SOURCE_SHAZAM}" .
 
 #* tigger with bug fix
 ARG SOURCE_TIGGER="tigger_${VERSION_TIGGER}_fix.tar.gz"
@@ -77,16 +73,20 @@ COPY "${SOURCE_TIGGER}" .
 
 # Install R pkgs
 
-# ~287s
+# ~414s
 RUN Rscript "${SCRIPT_R_IMM}" \
-    "${VERSION_SHAZAM}" "${VERSION_TIGGER}" "${VERSION_SCOPER}" \
-    && rm "${SCRIPT_R_IMM}" "${SOURCE_SHAZAM}" "${SOURCE_TIGGER}"
+    "${VERSION_SHAZAM}" "${VERSION_TIGGER}" "${VERSION_SCOPER}" "${VERSION_DOWSER}" \
+    && rm "${SCRIPT_R_IMM}" "${SOURCE_TIGGER}"
 
-# ~1253s
+# ~1268s
 RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
 
-#RUN Rscript "${SCRIPT_R_DOWSER}" && rm "${SCRIPT_R_DOWSER}"
+# scRepertoire from Bioconductor
+# do this after Seurat as Seurat is a dependency
+# ~200s
+RUN Rscript "${SCRIPT_R_BIOCONDUCTOR}" "${VERSION_BIOCONDUCTOR}" && rm "${SCRIPT_R_BIOCONDUCTOR}"
 
+# ~10s
 RUN Rscript "${SCRIPT_R_OTHER}" \
     "fastcluster" "corrplot" \
     && rm "${SCRIPT_R_OTHER}"
@@ -123,13 +123,6 @@ RUN wget -q --show-progress --no-check-certificate \
     && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
 
 
-# install tbl2asn
-RUN wget -q --show-progress --no-check-certificate \
-    ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/linux64.tbl2asn.gz \
-    && gunzip linux64.tbl2asn.gz \
-    && mv linux64.tbl2asn /usr/local/bin/tbl2asn \
-    && chmod +x /usr/local/bin/tbl2asn
-
 
 # Setup environment
 
@@ -160,6 +153,4 @@ RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     echo "  " $(which dnapars) >> "${PATH_INFO}" && \
     echo "- IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
     echo "  " $(which igphyml) >> "${PATH_INFO}" && \
-    echo "- tbl2asn:" >> "${PATH_INFO}" && \
-    echo "  " $(which tbl2asn) >> "${PATH_INFO}" && \
     Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
