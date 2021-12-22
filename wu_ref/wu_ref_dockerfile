@@ -17,7 +17,8 @@ USER root
 # optional_file, internal_data, database: /usr/local/share/germline_refs/igblast-${version}
 
 #*
-ARG VERSION_IGBLAST_1="1.17.1"
+#ARG VERSION_IGBLAST_1="1.17.1"
+ARG VERSION_IGBLAST_1="1.18.0"
 
 # Compared to immcantation suite dockerfile:
 # 1) Files in ncbi-igblast-[version]/bin are no longer moved to /usr/local/bin
@@ -41,7 +42,9 @@ RUN wget -q --show-progress --no-check-certificate \
 # /usr/local/share/germline_refs/imgt_select
 
 #*
-ARG VERSION_IMGT_1="202113-2"
+#ARG VERSION_IMGT_1="202113-2"
+ARG VERSION_IMGT_1="202150-3"
+
 COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
      "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
 
