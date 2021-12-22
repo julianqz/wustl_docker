@@ -1,3 +1,5 @@
+# works with v0.1
+
 # specify version of base container
 # via `--build-arg <varname>=<value>` on command line
 # `wu_base:main_[version]`
