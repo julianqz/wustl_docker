@@ -40,7 +40,7 @@ done
 
 
 # release notes
-URL_IMGT_NOTES="http://www.imgt.org/IMGT_vquest/data_releases/"
+URL_IMGT_NOTES="http://www.imgt.org/IMGT_vquest/data_releases"
 
 # ftp site
 URL_IMGT_DOWNLOAD="http://www.imgt.org/download/V-QUEST/"
