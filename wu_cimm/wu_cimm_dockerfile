@@ -6,7 +6,7 @@ ARG BASE_CONTAINER
 
 FROM "julianqz/${BASE_CONTAINER}"
 
-LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
       description="Customized image for computational immunology projects. Built on top of julianqz/${BASE_CONTAINER}."
 
 USER root
