@@ -1,0 +1,165 @@
+# specify version of base container
+# via `--build-arg <varname>=<value>` on command line
+# `wu_base:main_[version]`
+
+ARG BASE_CONTAINER
+
+FROM "julianqz/${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="Customized image for computational immunology projects. Built on top of julianqz/${BASE_CONTAINER}."
+
+USER root
+
+
+# for igphyml
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    automake \
+    libblas-dev \
+    liblapack-dev \
+    libatlas-base-dev
+
+
+# R pkgs to install
+
+ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat', 'fastcluster', 'corrplot')"
+#ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'Seurat', 'dowser')"
+
+
+# scripts to install R pkgs
+
+ARG SCRIPT_R_IMM="wu_cimm_imm.R"
+COPY "${SCRIPT_R_IMM}" .
+
+ARG SCRIPT_R_SEURAT="wu_cimm_seurat.R"
+COPY "${SCRIPT_R_SEURAT}" .
+
+#ARG SCRIPT_R_DOWSER="wu_cimm_dowser.R"
+#COPY "${SCRIPT_R_DOWSER}" .
+
+ARG SCRIPT_R_OTHER="wu_cimm_other.R"
+COPY "${SCRIPT_R_OTHER}" .
+
+# specify versions of tools
+
+ARG VERSION_CHANGEO="1.0.2"
+
+ARG VERSION_SHAZAM="1.0.2"
+ARG VERSION_TIGGER="1.0.0"
+ARG VERSION_SCOPER="1.1.0"
+
+ARG VERSION_SCANPY="1.7.2"
+ARG VERSION_SCIKIT_MISC="0.1.4"
+# multicore tsne won't install (docker or mac)
+#ARG VERSION_MULTICORE_TSNE="0.1"
+ARG VERSION_SEURAT="4.0.1"
+
+ARG VERSION_PHYLIP="3.697"
+ARG VERSION_IGPHYML="1.1.3"
+# dowser version detected after installation from latest bitbucket source code
+#ARG VERSION_DOWSER=""
+
+# tbl2asn version unavail, except that on ftp site, 
+#   `DOCUMENTATION/VERSIONS/` (2021-02-24 13:25) says `tbl2asn 25.8`
+#ARG VERSION_TBL2ASN="25.8"
+
+#* note: need to tar -zcvf from julianqz/ubuntu:main 
+#*       apparently tar.gz created by tar on MacOS did not work
+
+#* shazam with bug fix
+ARG SOURCE_SHAZAM="shazam_${VERSION_SHAZAM}_fix.tar.gz"
+COPY "${SOURCE_SHAZAM}" .
+
+#* tigger with bug fix
+ARG SOURCE_TIGGER="tigger_${VERSION_TIGGER}_fix.tar.gz"
+COPY "${SOURCE_TIGGER}" .
+
+# Install R pkgs
+
+# ~287s
+RUN Rscript "${SCRIPT_R_IMM}" \
+    "${VERSION_SHAZAM}" "${VERSION_TIGGER}" "${VERSION_SCOPER}" \
+    && rm "${SCRIPT_R_IMM}" "${SOURCE_SHAZAM}" "${SOURCE_TIGGER}"
+
+# ~1253s
+RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
+
+#RUN Rscript "${SCRIPT_R_DOWSER}" && rm "${SCRIPT_R_DOWSER}"
+
+RUN Rscript "${SCRIPT_R_OTHER}" \
+    "fastcluster" "corrplot" \
+    && rm "${SCRIPT_R_OTHER}"
+
+
+# Install Python libraries
+
+RUN pip install "changeo==${VERSION_CHANGEO}"
+
+RUN pip install "scanpy[leiden]==${VERSION_SCANPY}"
+
+RUN pip install "scikit-misc==${VERSION_SCIKIT_MISC}"
+
+#RUN pip install "cmake"
+#RUN pip install "MulticoreTSNE==${VERSION_MULTICORE_TSNE}"
+
+
+# install igphyml
+RUN wget -q --show-progress --no-check-certificate \
+    https://bitbucket.org/kleinstein/igphyml/get/${VERSION_IGPHYML}.tar.gz -O igphyml-${VERSION_IGPHYML}.tar.gz \
+    && mkdir -p /usr/local/bin/igphyml \
+    && tar -zxf igphyml-${VERSION_IGPHYML}.tar.gz -C /usr/local/bin/igphyml --strip-components 1 \
+    && (cd /usr/local/bin/igphyml && ./make_phyml_blas_omp) \
+    && rm -r igphyml-${VERSION_IGPHYML}.tar.gz
+
+
+# install phylip
+RUN wget -q --show-progress --no-check-certificate \
+    http://evolution.gs.washington.edu/phylip/download/phylip-${VERSION_PHYLIP}.tar.gz \
+    && tar -zxf phylip-${VERSION_PHYLIP}.tar.gz \
+    && (cd phylip-${VERSION_PHYLIP}/src && make -f Makefile.unx install CFLAGS='-fcommon') \
+    && mkdir -p /usr/local/bin/phylip \
+    && mv phylip-${VERSION_PHYLIP}/exe/* /usr/local/bin/phylip \
+    && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
+
+
+# install tbl2asn
+RUN wget -q --show-progress --no-check-certificate \
+    ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/linux64.tbl2asn.gz \
+    && gunzip linux64.tbl2asn.gz \
+    && mv linux64.tbl2asn /usr/local/bin/tbl2asn \
+    && chmod +x /usr/local/bin/tbl2asn
+
+
+# Setup environment
+
+ENV PATH="${PATH}:/usr/local/bin/phylip:/usr/local/bin/igphyml/src"
+
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+
+# build info
+
+ARG PATH_INFO="work/docker_build_info.txt"
+
+# printing version for presto too even tho not explicitly installed (required by changeo)
+
+RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
+    echo "- presto:" >> "${PATH_INFO}" && \
+    MaskPrimers.py --version >> "${PATH_INFO}" && \
+    echo "- changeo:" >> "${PATH_INFO}" && \
+    MakeDb.py --version >> "${PATH_INFO}" && \
+    echo "- Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
+    echo "- scikit-misc: ${VERSION_SCIKIT_MISC}" >> "${PATH_INFO}" && \
+    #echo "- MulticoreTSNE: ${VERSION_MULTICORE_TSNE}" >> "${PATH_INFO}" && \
+    echo "- PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
+    echo "  " $(which dnapars) >> "${PATH_INFO}" && \
+    echo "- IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
+    echo "  " $(which igphyml) >> "${PATH_INFO}" && \
+    echo "- tbl2asn:" >> "${PATH_INFO}" && \
+    echo "  " $(which tbl2asn) >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
