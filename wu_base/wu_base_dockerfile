@@ -1,12 +1,17 @@
 # specify version of base container
 
-ARG DIGEST="sha256:2eac078be835b6b2311e6cf034ffef355c7addb41313f200dded9ed963055c43"
+# v0.1
+#ARG DIGEST="sha256:2eac078be835b6b2311e6cf034ffef355c7addb41313f200dded9ed963055c43"
+
+# v0.2, tag notebook-6.4.5
+ARG DIGEST="sha256:f160d412229129d9841a2c68df1bd7669912f17d564656ce9910ccd856145342"
+
 
 ARG BASE_CONTAINER="jupyter/datascience-notebook@${DIGEST}"
 
 FROM "${BASE_CONTAINER}"
 
-LABEL maintainer="Julian Zhou [jqzhou@email.wustl.edu]" \
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
       description="Base image built on jupyter/datascience-notebook \
       with alakazam and additional R dependencies."
 
@@ -26,13 +31,20 @@ COPY "pdfcrop" "/usr/local/bin"
 
 # specify version of alakazam
 
-ARG VERSION_ALAKAZAM="1.1.0"
+# v0.1
+#ARG VERSION_ALAKAZAM="1.1.0"
 
+# v0.2
+ARG VERSION_ALAKAZAM="1.2.0"
+
+# v0.1
 #* As of 2021-04-21, later version of knitr (1.32) appears to cause issue with prestor
 #  (see prestor issue 132)
 #  After alakazam installation, manually downgrade knitr to 1.31
+#ARG VERSION_KNITR="1.31"
 
-ARG VERSION_KNITR="1.31"
+# v0.2
+ARG VERSION_KNITR="1.32"
 
 # variables listing R libraries
 
