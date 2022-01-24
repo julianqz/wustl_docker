@@ -181,3 +181,16 @@ docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 
 docker push julianqz/ubuntu:lsf
 
+# with aspera
+
+cd "/Users/jqz/Dropbox/wustl/code/docker/"
+
+docker build --file DockerFile_ubuntu_aspera --tag julianqz/ubuntu:aspera "/Users/jqz/Dropbox/common/tools"
+
+docker push julianqz/ubuntu:aspera
+
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+	--tag julianqz/ubuntu:aspera_lsf --build-arg BASE_CONTAINER="ubuntu:aspera" .
+
+docker push julianqz/ubuntu:aspera_lsf
+
