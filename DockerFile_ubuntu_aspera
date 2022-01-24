@@ -1,0 +1,27 @@
+# 20.04 is a LTS (long-term support) version
+
+FROM julianqz/ubuntu:main
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="Minimal ubuntu with Aspera Connect"
+
+# in common/tools/
+ARG FN_ASPERA_1="ibm-aspera-connect_4.1.1.73_linux.tar.gz"
+
+COPY "${FN_ASPERA_1}" .
+
+# after decompressing
+ARG FN_ASPERA_2="ibm-aspera-connect_4.1.1.73_linux.sh"
+
+RUN tar -zxf ${FN_ASPERA_1} \
+    && ./${FN_ASPERA_2} \
+    && rm ${FN_ASPERA_1} ${FN_ASPERA_2}
+
+# The shell script installs ascp to /root/.aspera/connect/bin
+# When running image on RIS, can't access /root
+# Wasn't able to find a way to change installation path
+# Tried specifying `USER` in buildfile; didn't help
+# Solution that seemed to work (tested on RIS): move from /root to /usr
+RUN mv "/root/.aspera" "/usr/.aspera"
+
+ENV PATH="${PATH}:/usr/.aspera/connect/bin"
