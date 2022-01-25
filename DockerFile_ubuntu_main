@@ -13,6 +13,7 @@ RUN apt-get update && \
     less \
     git \
     vim \
-    ftp
+    ftp \
+    lftp
 
 RUN git config --global http.sslverify false
