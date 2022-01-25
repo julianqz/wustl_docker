@@ -177,9 +177,9 @@ docker build --file DockerFile_ubuntu_main --tag julianqz/ubuntu:main .
 docker push julianqz/ubuntu:main
 
 docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/ubuntu:lsf --build-arg BASE_CONTAINER="ubuntu:main" .
+	--tag julianqz/ubuntu:main_lsf --build-arg BASE_CONTAINER="ubuntu:main" .
 
-docker push julianqz/ubuntu:lsf
+docker push julianqz/ubuntu:main_lsf
 
 # with aspera
 
