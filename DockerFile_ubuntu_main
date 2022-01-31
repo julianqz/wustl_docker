@@ -14,6 +14,9 @@ RUN apt-get update && \
     git \
     vim \
     ftp \
-    lftp
+    lftp \
+    jq \
+    curl \
+    ca-certificates
 
 RUN git config --global http.sslverify false
