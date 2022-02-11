@@ -14,7 +14,7 @@ PATH_WORK_1 = "~/Dropbox/common/germline_refs/imgt_select/"
 #PATH_WORK_1 = "~/Dropbox/common/germline_refs/C57BL6/"
 
 PATH_WORK_2 = paste0(PATH_WORK_1, "IMGT_vquest_release", ARGS[1])
-PATH_SCRIPT = "~/Dropbox/wustl/code/main/shared/bcr_sequence_processing.R"
+PATH_SCRIPT = "~/Dropbox/wustl/code/c2b2/bcr_sequence_processing.R"
 
 
 source(PATH_SCRIPT)
