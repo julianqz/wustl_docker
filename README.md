@@ -14,9 +14,14 @@ Note: Reference genome assemblies are not included and need to be downloaded sep
 
 ## Customized containers for computational immunology
 
-See `build_commands.sh` for version info. v0.1.1 is the main container version being used. v0.2.0 will be used for future projects.
+See `build_commands.sh` for version info. 
+
+* v0.1.1 is the main container version being used. 
+* v0.2.0 will be used for future projects.
 
 Within each container, installed versions are recorded at `work/docker_build_info.txt`.
+
+For general use by the public, use the pull commands listed under [`4)`](https://github.com/julianqz/wustl_docker#4-presto--cimm-container-with-igblast-and-igblast-ready-imgt-ig-references).
 
 ### 1) Base container
 
