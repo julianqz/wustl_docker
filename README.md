@@ -2,11 +2,13 @@
 
 ## Ubuntu v20.04
 
-Minimal Ubuntu with essentials like `git`, `vim`, `lftp` etc.: `docker pull julianqz/ubuntu:main`
+* Minimal Ubuntu with essentials like `git`, `vim`, `lftp` etc.: `docker pull julianqz/ubuntu:main`
 
-Same as above, plus Aspera Connect v4.1.1.73 (for SRA submissions): `docker pull julianqz/ubuntu:aspera`
+* Same as above, plus Aspera Connect v4.1.1.73 (for SRA submissions): `docker pull julianqz/ubuntu:aspera`
 
 ## Cell Ranger v6.0.1
+
+Note: Reference genome assemblies are not included and need to be downloaded separately.
 
 `docker pull julianqz/cellranger-6.0.1`
 
@@ -26,7 +28,13 @@ Within each container, installed versions are recoreded at `work/docker_build_in
 * Base container
 * pRESTO
 
-This container is designed to work with pipeline scripts in `wu_presto/pipelines` and helper scripts in `wu_presto/scripts`, some of which were adapted from Immcantation. Together, they support preprocessing sequencing libraries prepared using the NEB NextImmune kits. Primer sequences for the human kit were from Immcantation (`wu_presto/protocols/AbSeq`). Primer sequences for the mouse kit were from NEB's [Galaxy workflow](https://usegalaxy.org/u/bradlanghorst/w/presto-nebnext-immune-seq-workflow-v320) (accessed 2021-11-18) with renaming (`wu_presto/protocols/NEB_NextImmune_mouse`).
+This container is designed to work with pipeline scripts in `wu_presto/pipelines` and helper scripts in `wu_presto/scripts`, some of which were adapted from Immcantation. 
+
+Together, they support preprocessing sequencing libraries prepared using the NEB NextImmune kits. 
+
+Primer sequences for the human kit were from Immcantation (`wu_presto/protocols/AbSeq`). 
+
+Primer sequences for the mouse kit were from NEB's [Galaxy workflow](https://usegalaxy.org/u/bradlanghorst/w/presto-nebnext-immune-seq-workflow-v320) (accessed 2021-11-18) with renaming (`wu_presto/protocols/NEB_NextImmune_mouse`).
 
 3) `cimm` container 
 
@@ -47,9 +55,11 @@ Packages in parentheses are not installed in all versions of the container.
 * IgBLAST database files built based on IMGT Ig references
 
 `docker pull julianqz/wu_presto:ref_0.1.1`
+
 `docker pull julianqz/wu_presto:ref_0.2.0`
 
 `docker pull julianqz/wu_cimm:ref_0.1.1`
+
 `docker pull julianqz/wu_cimm:ref_0.2.0`
 
 5) Containers tailored to run on the LSF system on WUSTL RIS
@@ -59,8 +69,10 @@ Packages in parentheses are not installed in all versions of the container.
 * Added `ENTRYPOINT`
 
 `docker pull julianqz/wu_presto:ref_0.1.1_lsf`
+
 `docker pull julianqz/wu_presto:ref_0.2.0_lsf`
 
 `docker pull julianqz/wu_cimm:ref_0.1.1_lsf`
+
 `docker pull julianqz/wu_cimm:ref_0.2.0_lsf`
 
