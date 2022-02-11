@@ -172,7 +172,7 @@ docker push julianqz/wu_presto:ref_0.1.1d_lsf
 
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
-docker build --file DockerFile_ubuntu_main --tag julianqz/ubuntu:main .
+docker build --file dockerfile_ubuntu_main --tag julianqz/ubuntu:main .
 
 docker push julianqz/ubuntu:main
 
@@ -185,7 +185,7 @@ docker push julianqz/ubuntu:main_lsf
 
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
-docker build --file DockerFile_ubuntu_aspera --tag julianqz/ubuntu:aspera "/Users/jqz/Dropbox/common/tools"
+docker build --file dockerfile_ubuntu_aspera --tag julianqz/ubuntu:aspera "/Users/jqz/Dropbox/common/tools"
 
 docker push julianqz/ubuntu:aspera
 
