@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Install prestor
+
 # https://bitbucket.org/kleinstein/prestor/src/master/README.md
 
 REPO_CRAN = "http://cran.us.r-project.org"

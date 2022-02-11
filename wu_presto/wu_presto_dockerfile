@@ -20,7 +20,7 @@ COPY "./scripts/${SCRIPT_PHIX}" .
 
 # script to install prestor
 
-ARG SCRIPT_R_1="wu_presto_r.R"
+ARG SCRIPT_R_1="wu_prestor.R"
 COPY "${SCRIPT_R_1}" .
 
 #  v0.1
@@ -38,7 +38,7 @@ COPY "${SCRIPT_R_1}" .
 
 ARG VERSION_KNITR="1.32"
 
-ARG SCRIPT_R_2="wu_knitr_r.R"
+ARG SCRIPT_R_2="wu_knitr.R"
 COPY "${SCRIPT_R_2}" .
 
 
