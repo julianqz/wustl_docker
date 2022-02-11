@@ -14,7 +14,7 @@ Note: Reference genome assemblies are not included and need to be downloaded sep
 
 ## Customized containers for computational immunology
 
-See `build_commands.sh` for version info. 
+See [`build_commands.sh`](./build_commands.sh) for version info. 
 
 * v0.1.1 is the main container version being used. 
 * v0.2.0 will be used for future projects.
@@ -33,13 +33,13 @@ For general use by the public, use the pull commands listed under [`4)`](https:/
 * Base container
 * pRESTO
 
-This container is designed to work with pipeline scripts in `wu_presto/pipelines` and helper scripts in `wu_presto/scripts`, some of which were adapted from [Immcantation](https://bitbucket.org/kleinstein/immcantation). 
+This container is designed to work with pipeline scripts in [`wu_presto/pipelines`](./wu_presto/pipelines) and helper scripts in [`wu_presto/scripts`](./wu_presto/scripts), some of which were adapted from [Immcantation](https://bitbucket.org/kleinstein/immcantation). 
 
 Together, they support preprocessing sequencing libraries prepared using the NEB NextImmune kits. 
 
-Primer sequences for the human kit were from [Immcantation](https://bitbucket.org/kleinstein/immcantation) (`wu_presto/protocols/AbSeq`). 
+Primer sequences for the human kit were from [Immcantation](https://bitbucket.org/kleinstein/immcantation) ([`wu_presto/protocols/AbSeq`](./wu_presto/protocols/AbSeq)). 
 
-Primer sequences for the mouse kit were from NEB's [Galaxy workflow](https://usegalaxy.org/u/bradlanghorst/w/presto-nebnext-immune-seq-workflow-v320) (accessed 2021-11-18) with renaming (`wu_presto/protocols/NEB_NextImmune_mouse`).
+Primer sequences for the mouse kit were from NEB's [Galaxy workflow](https://usegalaxy.org/u/bradlanghorst/w/presto-nebnext-immune-seq-workflow-v320) (accessed 2021-11-18) with renaming ([`wu_presto/protocols/NEB_NextImmune_mouse`](./wu_presto/protocols/NEB_NextImmune_mouse)).
 
 ### 3) `cimm` container (BCR & GEX processing & analysis)
 
