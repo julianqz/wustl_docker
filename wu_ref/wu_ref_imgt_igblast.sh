@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Convert IMGT germlines sequences to IgBLAST database
 #
-# Author:  Julian Q Zhou
+# Author:  Julian Q. Zhou
+# https://github.com/julianqz
 # Date:    2021-04-18
 #
 # Adapted from "imgt2igblast.sh" by JAVH from immcantation/scripts

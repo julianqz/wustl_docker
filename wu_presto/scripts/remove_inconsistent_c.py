@@ -6,6 +6,9 @@ import re, sys, os
 from os import path
 from sys import argv
 
+# Julian Q. Zhou
+# https://github.com/julianqz
+
 # command line input: input.fastq
 
 # header: 

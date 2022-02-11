@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Download the latest IMGT germline references and tag with release version
 #
-# Author: Julian Q Zhou
+# Author: Julian Q. Zhou
+# https://github.com/julianqz
 # Date:   2021-04-18
 
 

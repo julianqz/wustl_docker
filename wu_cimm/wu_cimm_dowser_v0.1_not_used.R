@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Install Dowser
+
 # https://dowser.readthedocs.io/en/latest/install/
 
 REPO_CRAN = "http://cran.us.r-project.org"

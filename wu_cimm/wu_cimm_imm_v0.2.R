@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Install Immcantation R packages
+
 ARGS = commandArgs(trailingOnly=T)
 
 # order of command line arguments should match this

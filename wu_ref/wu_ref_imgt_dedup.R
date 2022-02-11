@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# De-duplicate IMGT Ig allele references
+
 # expect a single value from command line input
 # version of IMGT reference release
 # e.g. "202113-2"

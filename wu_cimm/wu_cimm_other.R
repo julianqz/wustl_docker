@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Install R packages of choice
+
 PACKAGES = commandArgs(trailingOnly=T)
 
 REPO_CRAN = "http://cran.us.r-project.org"

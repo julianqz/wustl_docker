@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Install dependent R packages
+
 ARGS = commandArgs(trailingOnly=T)
 stopifnot(length(ARGS)==2)
 

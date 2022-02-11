@@ -4,7 +4,7 @@
 # Author:  Jason Anthony Vander Heiden, Gur Yaari, Namita Gupta
 # Date:    2018.09.15
 # 
-# Adapted by Julian Q Zhou, 2021-04-19
+# Adapted by Julian Q. Zhou, 2021-04-19
 # Modifications are marked by "#*JZ"
 #
 #

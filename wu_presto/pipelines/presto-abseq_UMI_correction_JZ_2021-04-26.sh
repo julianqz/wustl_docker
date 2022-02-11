@@ -7,7 +7,7 @@
 # Author:  Roy Jiang
 # Date:    2018.06.18
 #
-# Adapted by Julian Q Zhou, 2021-04-26
+# Adapted by Julian Q. Zhou, 2021-04-26
 
 
 # Print usage

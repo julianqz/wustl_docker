@@ -1,3 +1,8 @@
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Install BioConductor packages
+
 # Bioconductor release version specified via command line
 ARGS = commandArgs(trailingOnly=T)
 stopifnot(length(ARGS)==1)
