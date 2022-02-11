@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
+# Julian Q. Zhou
+# https://github.com/julianqz
+
+# Documentation of build commands used to build Docker containers
+
 
 ### versions
 
-# base   0.1.0  Ubuntu 20.04.2 LTS (includes g++ 9.3.0)
+# base    0.1.0 Ubuntu 20.04.2 LTS (includes g++ 9.3.0)
 #               Python 3.8.8
 #               R 4.0.3
 #               alakazam 1.1.0
@@ -51,7 +56,7 @@
 #               tbl2asn - (removed)
 
 # ref   0.1.x   igblastn 1.17.1
-#       0.1.x   IMGT references (standard): release202113-2
+#       0.1.0   IMGT references (standard): release202113-2
 #               IMGT references (C57BL6): -
 #       0.1.1   IMGT references (standard): release202113-2
 #               IMGT references (C57BL6): release202011-3
