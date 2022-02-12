@@ -2,15 +2,19 @@
 
 ## Ubuntu v20.04
 
-* Minimal Ubuntu with essentials like `git`, `vim`, `lftp` etc.: `docker pull julianqz/ubuntu:main`
+* Minimal Ubuntu with essentials like `git`, `vim`, `lftp` etc. 
 
-* Same as above, plus Aspera Connect v4.1.1.73 (for SRA submissions): `docker pull julianqz/ubuntu:aspera`
+`docker pull julianqz/ubuntu:main` (260 MB) 
+
+* Same as above, plus Aspera Connect v4.1.1.73 
+
+`docker pull julianqz/ubuntu:aspera` (750 MB)
 
 ## Cell Ranger v6.0.1
 
 Note: Reference genome assemblies are not included and need to be downloaded separately.
 
-`docker pull julianqz/cellranger-6.0.1`
+`docker pull julianqz/cellranger-6.0.1` (1.1 GB)
 
 ## Customized containers for computational immunology
 
@@ -59,13 +63,13 @@ Packages in parentheses are not installed in all versions of the container.
 * IMGT Ig references
 * IgBLAST database files built based on IMGT Ig references
 
-`docker pull julianqz/wu_presto:ref_0.1.1`
+`docker pull julianqz/wu_presto:ref_0.1.1` (5.1 GB)
 
-`docker pull julianqz/wu_presto:ref_0.2.0`
+`docker pull julianqz/wu_presto:ref_0.2.0` (5.4 GB)
 
-`docker pull julianqz/wu_cimm:ref_0.1.1`
+`docker pull julianqz/wu_cimm:ref_0.1.1` (6.5 GB)
 
-`docker pull julianqz/wu_cimm:ref_0.2.0`
+`docker pull julianqz/wu_cimm:ref_0.2.0` (6.4 GB)
 
 ### 5) Containers tailored to run on the LSF system on WUSTL RIS
 
