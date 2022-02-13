@@ -68,6 +68,17 @@
 # ref_lsf       added LSF env variable for scanpy to work on RIS
 
 
+# pub  r_4.1.0  R 4.1.0
+#               BioConductor 3.13
+#               igraph 1.2.5
+#               circlize 0.4.13
+#               ggtree 3.0.4
+#               vioplot 0.3.6
+#               ggplot2 3.3.5
+#               alakazam 1.1.0
+#               shazam 1.0.2 with bug fix for shazam::distToNearest
+#               tigger 1.0.0 with bug fix for tigger::genotypeFasta
+
 
 ### design
 
@@ -92,8 +103,13 @@
 #		    		 	    _lsf: ENTRYPOINT
 
 
+# jupyter/r-notebook
+#
+#    wu_pub:r_4.1.0: specific versions of R packages
+#           _lsf: ENTRYPOINT
 
-### wu_*
+
+### wu_base/presto/cimm
 
 # Before build, check version in build command is correct
 # If wrong and already built, use `docker image tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]` to change it
@@ -198,4 +214,19 @@ docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/ubuntu:aspera_lsf --build-arg BASE_CONTAINER="ubuntu:aspera" .
 
 docker push julianqz/ubuntu:aspera_lsf
+
+
+
+### wu_pub
+
+# use ./wu_cimm for context (location of tar.gz containing bug fixes for shazam & tigger)
+
+docker build --file wu_pub/wu_pub_r_4.1.0 --tag julianqz/wu_pub:r_4.1.0 ./wu_cimm
+
+docker push julianqz/wu_pub:r_4.1.0
+
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+	--tag julianqz/wu_pub:r_4.1.0_lsf --build-arg BASE_CONTAINER="wu_pub:r_4.1.0" .
+
+docker push julianqz/wu_pub:r_4.1.0_lsf
 
