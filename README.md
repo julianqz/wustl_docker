@@ -4,11 +4,11 @@
 
 * Minimal Ubuntu with essentials like `git`, `vim`, `lftp` etc. 
 
-`docker pull julianqz/ubuntu:main` (260 MB) 
+`docker pull julianqz/ubuntu:main` (102 MB) 
 
 * Same as above, plus Aspera Connect v4.1.1.73 
 
-`docker pull julianqz/ubuntu:aspera` (750 MB)
+`docker pull julianqz/ubuntu:aspera` (322 MB)
 
 ## Cell Ranger v6.0.1
 
@@ -63,13 +63,13 @@ Packages in parentheses are not installed in all versions of the container.
 * IMGT Ig references
 * IgBLAST database files built based on IMGT Ig references
 
-`docker pull julianqz/wu_presto:ref_0.1.1` (5.1 GB)
+`docker pull julianqz/wu_presto:ref_0.1.1` (1.7 GB)
 
-`docker pull julianqz/wu_presto:ref_0.2.0` (5.4 GB)
+`docker pull julianqz/wu_presto:ref_0.2.0` (1.8 GB)
 
-`docker pull julianqz/wu_cimm:ref_0.1.1` (6.5 GB)
+`docker pull julianqz/wu_cimm:ref_0.1.1` (2.2 GB)
 
-`docker pull julianqz/wu_cimm:ref_0.2.0` (6.4 GB)
+`docker pull julianqz/wu_cimm:ref_0.2.0` (2.1 GB)
 
 ### 5) Containers tailored to run on the LSF system on WUSTL RIS
 
@@ -84,4 +84,10 @@ Packages in parentheses are not installed in all versions of the container.
 `docker pull julianqz/wu_cimm:ref_0.1.1_lsf`
 
 `docker pull julianqz/wu_cimm:ref_0.2.0_lsf`
+
+## Customized container for reproducing published analysis
+
+R v4.1.0, igraph v1.2.5, ggplot2 v3.3.5, ggtree v3.0.4, circlize v0.4.13
+
+* `docker pull julianqz/wu_pub:r_4.1.0` (1.0 GB)
 
