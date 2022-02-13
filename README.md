@@ -87,7 +87,7 @@ Packages in parentheses are not installed in all versions of the container.
 
 ## Customized container for reproducing published analysis
 
-R v4.1.0, igraph v1.2.5, ggplot2 v3.3.5, ggtree v3.0.4, circlize v0.4.13
+* R v4.1.0, igraph v1.2.5, ggplot2 v3.3.5, ggtree v3.0.4, circlize v0.4.13
 
-* `docker pull julianqz/wu_pub:r_4.1.0` (1.0 GB)
+`docker pull julianqz/wu_pub:r_4.1.0` (1.0 GB)
 
