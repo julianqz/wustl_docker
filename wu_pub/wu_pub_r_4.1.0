@@ -1,0 +1,82 @@
+# specify version of base container
+
+# jupyter/r-notebook:r-4.1.0
+ARG DIGEST="sha256:99b8332dcaecf0a4cc28f6094d07fe82e5994d1e30cb92fe5050a5ff21c2816e"
+
+ARG BASE_CONTAINER="jupyter/r-notebook@${DIGEST}"
+
+FROM "${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="Customized R image with specific versions of packages for reproducing published analysis."
+
+USER root
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    tree \
+    less \
+    vim
+
+# base container comes with ggplot2 v3.3.5 and tibble v3.1.3
+
+ARG REPO_OPT="options(repos='http://cran.us.r-project.org')"
+
+# BioConductor 3.13
+RUN Rscript -e "${REPO_OPT}; install.packages('BiocManager'); BiocManager::install(update=F, ask=F, version='3.13')"
+
+# ggtree v3.0.4 (also installs ape v5.6-1)
+RUN Rscript -e "BiocManager::install(pkgs='ggtree', update=F, ask=F)"
+
+# circlize v0.4.13
+RUN Rscript -e "${REPO_OPT}; devtools::install_version('circlize', version='0.4.13', upgrade='never')"
+
+# vioplot v0.3.6 (also installs sm_2.2-5.7)
+RUN Rscript -e "${REPO_OPT}; devtools::install_version('vioplot', version='0.3.6', upgrade='never')"
+
+# igraph v1.2.5
+# ~120s
+RUN Rscript -e "${REPO_OPT}; devtools::install_version('igraph', version='1.2.5', upgrade='never')"
+
+# versions
+RUN Rscript -e "${REPO_OPT}; install.packages('versions')"
+
+# alakazam dependencies in BioConductor
+# ~360s
+RUN Rscript -e "BiocManager::install(pkgs=c('Biostrings','GenomicAlignments','IRanges'), update=F, ask=F)"
+
+# alakazam v1.1.0
+# specify `upgrade='never'`, otherwise will force-install latest version of igraph
+# ~180s (much slower without `upgrade='never'`)
+RUN Rscript -e "${REPO_OPT}; devtools::install_version('alakazam', version='1.1.0', upgrade='never')"
+
+# shazam v1.0.2 with bug fix
+# ~40s
+ARG VERSION_SHAZAM="1.0.2"
+ARG SOURCE_SHAZAM="shazam_${VERSION_SHAZAM}_fix.tar.gz"
+COPY "${SOURCE_SHAZAM}" .
+RUN Rscript -e "devtools::install_local('${SOURCE_SHAZAM}', upgrade='never')"
+
+# tigger v1.0.0 with bug fix
+# ~40s
+ARG VERSION_TIGGER="1.0.0"
+ARG SOURCE_TIGGER="tigger_${VERSION_TIGGER}_fix.tar.gz"
+COPY "${SOURCE_TIGGER}" .
+RUN Rscript -e "devtools::install_local('${SOURCE_TIGGER}', upgrade='never')"
+
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+
+# build info
+
+ARG PATH_INFO="work/docker_build_info.txt"
+
+ARG PKGS_R="c('igraph','circlize','ggtree','ape','vioplot','ggplot2','alakazam','shazam','tigger','BiocManager')"
+
+RUN echo "--- wu_pub_r_4.1.0 ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
+    Rscript -e "base::version[['version.string']]" >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
