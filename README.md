@@ -45,7 +45,7 @@ Primer sequences for the human kit were from [Immcantation](https://bitbucket.or
 
 Primer sequences for the mouse kit were from NEB's [Galaxy workflow](https://usegalaxy.org/u/bradlanghorst/w/presto-nebnext-immune-seq-workflow-v320) (accessed 2021-11-18) with renaming ([`wu_presto/protocols/NEB_NextImmune_mouse`](./wu_presto/protocols/NEB_NextImmune_mouse)).
 
-### 3) `cimm` container (BCR & GEX processing & analysis)
+### 3) `cimm` (<u>c</u>omputational <u>i</u>mmunology) container (BCR & GEX processing & analysis)
 
 * Base container
 * BCR parsing: Change-O
