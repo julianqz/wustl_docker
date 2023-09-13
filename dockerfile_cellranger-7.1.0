@@ -1,0 +1,34 @@
+# 20.04 is a LTS (long-term support) version
+
+FROM ubuntu:20.04
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="Cell Ranger v7.1.0 for LSF"
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
+    sudo \
+    wget
+
+# WORKDIR sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD
+# instructions that follow it
+
+WORKDIR /usr/src/
+
+ARG CR_NAME="cellranger-7.1.0"
+
+ARG CR_LINK="https://cf.10xgenomics.com/releases/cell-exp/cellranger-7.1.0.tar.gz?Expires=1694671597&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZi4xMHhnZW5vbWljcy5jb20vcmVsZWFzZXMvY2VsbC1leHAvY2VsbHJhbmdlci03LjEuMC50YXIuZ3oiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2OTQ2NzE1OTd9fX1dfQ__&Signature=eCwNyWKYOKnw5dBaiuEvC9XsrTExTywIL~Mw0F3-NrZRNa2KvFs1scBS18hNuGL82rChnelm3ZB6yXElUdGZ2k38Ste9jfEFnk6BeDA4xrNl7SRkRx9wAnZM5301Vs7RLPVwxPiUwGRot0WsGMDcVPVKOsCRpFYHOUIBDEU7d95BPFqUqgx83e0g4E99Ts-0asADyXrRCloUyNHpwk-6KLpaEWHKEJNo954NV7xk0UMegX-lzaxel-Tk9GVdRLb4qN3eluy27WsZJy48CORxobdSM3tR05NjwcJlVF0dmj~SIlqdiQ3auaKo3NR5YXOnT~83Zpwnd9RGm63EI4mL2Q__&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA"
+
+RUN wget --no-check-certificate -O "${CR_NAME}.tar.gz" "${CR_LINK}" && \
+	tar -zxvf "${CR_NAME}.tar.gz" && \
+	rm "${CR_NAME}.tar.gz"
+
+# LSF system needs this
+ENTRYPOINT ["/bin/sh"]
+
+ENV PATH="/usr/src/${CR_NAME}:${PATH}"
+
+# BM: 
+# Based on your compute solution, you might need to set compute environment 
+# variable to FALSE during scripting. This will allow the container to execute 
+# the ENV command and add cellranger to PATH.
