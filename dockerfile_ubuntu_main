@@ -17,6 +17,8 @@ RUN apt-get update && \
     lftp \
     jq \
     curl \
-    ca-certificates
+    ca-certificates \
+    zip \
+    unzip
 
 RUN git config --global http.sslverify false
