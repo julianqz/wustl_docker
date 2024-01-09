@@ -1,0 +1,59 @@
+# specify version of base container
+# via `--build-arg <varname>=<value>` on command line
+# `wu_base:main_[version]`
+
+ARG BASE_CONTAINER
+
+FROM "julianqz/${BASE_CONTAINER}"
+
+LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
+      description="Beta container. Built on top of julianqz/${BASE_CONTAINER}."
+
+USER root
+
+
+# R pkgs to install
+
+ARG PKGS_R="c('anndata', 'Seurat')"
+
+
+# scripts to install R pkgs
+
+ARG SCRIPT_R_SEURAT="wu_beta_seurat.R"
+COPY "${SCRIPT_R_SEURAT}" .
+
+
+# specify versions of tools
+
+ARG VERSION_ANNDATA="0.7.5.6"
+ARG VERSION_SEURAT="5.0.0"
+
+
+# Install R pkgs
+
+RUN Rscript "${SCRIPT_R_SEURAT}" \
+    "${VERSION_ANNDATA}" "${VERSION_SEURAT}" \
+    && rm "${SCRIPT_R_SEURAT}"
+
+# Install Python libraries
+
+ARG VERSION_ANNDATA="0.10.4"
+
+RUN pip install "anndata==${VERSION_ANNDATA}"
+
+
+# Switch back to jovyan to avoid accidental container runs as root
+
+USER "${NB_UID}"
+
+
+# build info
+
+ARG PATH_INFO="work/docker_build_info.txt"
+
+# printing version for presto too even tho not explicitly installed (required by changeo)
+
+RUN echo "--- wu_beta ---" >> "${PATH_INFO}" && \
+    date >> "${PATH_INFO}" && \
+    echo "- anndata: ${VERSION_ANNDATA}" >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
