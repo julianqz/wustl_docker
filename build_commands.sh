@@ -54,6 +54,9 @@
 #               scoper 1.2.0
 #               dowser 0.1.0 via CRAN (new addition)
 #               tbl2asn - (removed)
+#
+#       0.2.2   SeuratData 0.2.2
+#               SeuratDisk 0.0.0.9020
 
 # ref   0.1.x   igblastn 1.17.1
 #       0.1.0   IMGT references (standard): release202113-2
@@ -67,6 +70,10 @@
 
 # ref_lsf       added LSF env variable for scanpy to work on RIS
 
+# beta 0.2.0    (based on wu_base:main_0.2.0)
+#               R - anndata, 0.7.5.6
+#               R - Seurat, 5.0.0
+#               Python - anndata, 0.10.4
 
 # pub  r_4.1.0  R 4.1.0
 #               BioConductor 3.13
@@ -229,4 +236,17 @@ docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_pub:r_4.1.0_lsf --build-arg BASE_CONTAINER="wu_pub:r_4.1.0" .
 
 docker push julianqz/wu_pub:r_4.1.0_lsf
+
+
+### beta
+
+docker build --file wu_beta/wu_beta_dockerfile_v0.1 --tag julianqz/wu_beta:main_0.2.0 \
+	--build-arg BASE_CONTAINER="wu_base:main_0.2.0" ./wu_beta
+
+docker push julianqz/wu_beta:main_0.2.0
+
+docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+	--tag julianqz/wu_beta:main_0.2.0_lsf --build-arg BASE_CONTAINER="wu_beta:main_0.2.0" .
+
+docker push julianqz/wu_beta:main_0.2.0_lsf
 
