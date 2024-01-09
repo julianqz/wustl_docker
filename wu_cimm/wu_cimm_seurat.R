@@ -24,3 +24,9 @@ for (pkg in PACKAGES) {
     devtools::install_version(pkg, version=VERSIONS_WANTED[pkg])
 
 }
+
+
+# for importing .h5ad
+#devtools::install_github('satijalab/seurat-data', upgrade="never")
+#remotes::install_github("mojaveazure/seurat-disk", upgrade="never")
+

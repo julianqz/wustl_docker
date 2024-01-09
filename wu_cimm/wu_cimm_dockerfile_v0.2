@@ -78,7 +78,7 @@ RUN Rscript "${SCRIPT_R_IMM}" \
     "${VERSION_SHAZAM}" "${VERSION_TIGGER}" "${VERSION_SCOPER}" "${VERSION_DOWSER}" \
     && rm "${SCRIPT_R_IMM}" "${SOURCE_TIGGER}"
 
-# ~1268s
+# ~2100s
 RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
 
 # scRepertoire from Bioconductor
@@ -122,6 +122,10 @@ RUN wget -q --show-progress --no-check-certificate \
     && mv phylip-${VERSION_PHYLIP}/exe/* /usr/local/bin/phylip \
     && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
 
+
+ARG SCRIPT_R_SEURAT_2="wu_cimm_seurat_additional.R"
+COPY "${SCRIPT_R_SEURAT_2}" .
+RUN Rscript "${SCRIPT_R_SEURAT_2}" && rm "${SCRIPT_R_SEURAT_2}"
 
 
 # Setup environment
