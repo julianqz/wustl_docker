@@ -21,6 +21,14 @@
 #               alakazam 1.2.0
 #               knitr 1.32
 #               BiocManager 1.30.16 (Bioconductor 3.14)
+#
+#         0.3.0 Ubuntu 22.04.2 LTS [to check, `cat /etc/issue`]
+#               Python 3.11.4
+#               R 4.3.1
+#               alakazam 1.3.0
+#               knitr 1.45
+#               BiocManager 1.30.22 (Bioconductor 3.18)
+#               igraph 2.0.2
 
 # presto 0.1.0  initial
 #               pRESTO 0.6.2
@@ -57,6 +65,22 @@
 #
 #       0.2.2   SeuratData 0.2.2
 #               SeuratDisk 0.0.0.9020
+#
+#       0.3.0   presto 0.7.2
+#               changeo 1.3.0
+#               scanpy 1.9.8
+#               anndata (python) 0.10.5.post1
+#               scikit-misc 0.3.1
+#               SeuratObject 5.0.1
+#               Seurat 5.0.1
+#               scRepertoire (removed)
+#               tigger 1.1.0
+#               shazam 1.2.0
+#               scoper 1.3.0
+#               dowswer 2.1.0
+#               anndata (R) 0.7.5.6
+#               circlize 0.4.16
+#               IgPHYML 2.0.0
 
 # ref   0.1.x   igblastn 1.17.1
 #       0.1.0   IMGT references (standard): release202113-2
@@ -67,6 +91,10 @@
 #       0.2.x   igblastn 1.18.0 (C gene support for Ig seqs)
 #               IMGT references (standard): release202150-3
 #               IMGT references (C57BL6): release202011-3
+#  
+#       0.3.x  igblastn 1.22.0
+#              IMGT references (standard): release202405-2
+#              IMGT references (C57BL6): release202011-3
 
 # ref_lsf       added LSF env variable for scanpy to work on RIS
 
@@ -116,6 +144,8 @@
 #           _lsf: ENTRYPOINT
 
 
+### system clean up: https://docs.docker.com/reference/cli/docker/system/prune/
+
 ### wu_base/presto/cimm
 
 # Before build, check version in build command is correct
@@ -125,18 +155,20 @@
 # e.g.: `docker run --rm -it julianqz/wu_base:main_0.1.0 bash`
 
 
+# use --progress=plain with `docker build` for non-truncated output
+
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
-docker build --file wu_base/wu_base_dockerfile --tag julianqz/wu_base:main_0.1.0 ./wu_base
+docker build --progress=plain --file wu_base/wu_base_dockerfile --tag julianqz/wu_base:main_0.1.0 ./wu_base
 
 docker push julianqz/wu_base:main_0.1.0
 
-docker build --file wu_presto/wu_presto_dockerfile --tag julianqz/wu_presto:main_0.1.1 \
+docker build --progress=plain --file wu_presto/wu_presto_dockerfile --tag julianqz/wu_presto:main_0.1.1 \
 	--build-arg BASE_CONTAINER="wu_base:main_0.1.0" ./wu_presto
 
 docker push julianqz/wu_presto:main_0.1.1
 
-docker build --file wu_cimm/wu_cimm_dockerfile_v0.1 --tag julianqz/wu_cimm:main_0.1.1 \
+docker build --progress=plain --file wu_cimm/wu_cimm_dockerfile_v0.1 --tag julianqz/wu_cimm:main_0.1.1 \
 	--build-arg BASE_CONTAINER="wu_base:main_0.1.0" ./wu_cimm
 
 docker push julianqz/wu_cimm:main_0.1.1
@@ -153,13 +185,13 @@ Rscript ./wu_ref/wu_ref_imgt_dedup.R "202113-2" #*
 
 # note context
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_presto:ref_0.1.1 --build-arg BASE_CONTAINER="wu_presto:main_0.1.1" \
 	"/Users/jqz/Dropbox/"
 
 docker push julianqz/wu_presto:ref_0.1.1
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_cimm:ref_0.1.1 --build-arg BASE_CONTAINER="wu_cimm:main_0.1.1" \
 	"/Users/jqz/Dropbox/"
 
@@ -167,10 +199,10 @@ docker push julianqz/wu_cimm:ref_0.1.1
 
 # add lsf
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_cimm:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.1.1" .
 
 docker push julianqz/wu_presto:ref_0.1.1_lsf
@@ -182,14 +214,14 @@ docker push julianqz/wu_cimm:ref_0.1.1_lsf
 ### presto 0.1.1d (with debugging for EE set)
 # based on wu_base:main_0.1.0 (not 0.1.1 -- 0.1.1 doesn't exist yet)
 
-docker build --file wu_presto/wu_presto_dockerfile_debug --tag julianqz/wu_presto:main_0.1.1d \
+docker build --progress=plain --file wu_presto/wu_presto_dockerfile_debug --tag julianqz/wu_presto:main_0.1.1d \
 	--build-arg BASE_CONTAINER="wu_base:main_0.1.0" ./wu_presto
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_presto:ref_0.1.1d --build-arg BASE_CONTAINER="wu_presto:main_0.1.1d" \
 	"/Users/jqz/Dropbox/"
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_presto:ref_0.1.1d_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1d" .
 
 docker push julianqz/wu_presto:ref_0.1.1d_lsf
@@ -200,11 +232,11 @@ docker push julianqz/wu_presto:ref_0.1.1d_lsf
 
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
-docker build --file dockerfile_ubuntu_main --tag julianqz/ubuntu:main .
+docker build --progress=plain --file dockerfile_ubuntu_main --tag julianqz/ubuntu:main .
 
 docker push julianqz/ubuntu:main
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/ubuntu:main_lsf --build-arg BASE_CONTAINER="ubuntu:main" .
 
 docker push julianqz/ubuntu:main_lsf
@@ -213,11 +245,11 @@ docker push julianqz/ubuntu:main_lsf
 
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
-docker build --file dockerfile_ubuntu_aspera --tag julianqz/ubuntu:aspera "/Users/jqz/Dropbox/common/tools"
+docker build --progress=plain --file dockerfile_ubuntu_aspera --tag julianqz/ubuntu:aspera "/Users/jqz/Dropbox/common/tools"
 
 docker push julianqz/ubuntu:aspera
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/ubuntu:aspera_lsf --build-arg BASE_CONTAINER="ubuntu:aspera" .
 
 docker push julianqz/ubuntu:aspera_lsf
@@ -228,11 +260,11 @@ docker push julianqz/ubuntu:aspera_lsf
 
 # use ./wu_cimm for context (location of tar.gz containing bug fixes for shazam & tigger)
 
-docker build --file wu_pub/wu_pub_r_4.1.0 --tag julianqz/wu_pub:r_4.1.0 ./wu_cimm
+docker build --progress=plain --file wu_pub/wu_pub_r_4.1.0 --tag julianqz/wu_pub:r_4.1.0 ./wu_cimm
 
 docker push julianqz/wu_pub:r_4.1.0
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_pub:r_4.1.0_lsf --build-arg BASE_CONTAINER="wu_pub:r_4.1.0" .
 
 docker push julianqz/wu_pub:r_4.1.0_lsf
@@ -240,12 +272,12 @@ docker push julianqz/wu_pub:r_4.1.0_lsf
 
 ### beta
 
-docker build --file wu_beta/wu_beta_dockerfile_v0.1 --tag julianqz/wu_beta:main_0.2.0 \
+docker build --progress=plain --file wu_beta/wu_beta_dockerfile_v0.1 --tag julianqz/wu_beta:main_0.2.0 \
 	--build-arg BASE_CONTAINER="wu_base:main_0.2.0" ./wu_beta
 
 docker push julianqz/wu_beta:main_0.2.0
 
-docker build --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_beta:main_0.2.0_lsf --build-arg BASE_CONTAINER="wu_beta:main_0.2.0" .
 
 docker push julianqz/wu_beta:main_0.2.0_lsf
