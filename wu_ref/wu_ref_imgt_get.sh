@@ -41,10 +41,10 @@ done
 
 
 # release notes
-URL_IMGT_NOTES="http://www.imgt.org/IMGT_vquest/data_releases"
+URL_IMGT_NOTES="https://www.imgt.org/IMGT_vquest/data_releases"
 
 # ftp site
-URL_IMGT_DOWNLOAD="http://www.imgt.org/download/V-QUEST/"
+URL_IMGT_DOWNLOAD="https://www.imgt.org/download/V-QUEST/"
 
 # .txt containing version and release date
 NAME_TXT="IMGT_vquest_release.txt"
