@@ -4,10 +4,12 @@
 # Install Seurat
 
 ARGS = commandArgs(trailingOnly=T)
-stopifnot(length(ARGS)==1)
 
 # order of command line arguments should match this
-PACKAGES = c("Seurat")
+#PACKAGES = c("Seurat") #v0.2
+PACKAGES = c("SeuratObject", "Seurat", "anndata") #v0.3
+
+stopifnot(length(ARGS)==length(PACKAGES))
 
 REPO_CRAN = "http://cran.us.r-project.org"
 #REPO_CRAN = "http://lib.stat.cmu.edu/R/CRAN/"

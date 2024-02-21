@@ -16,6 +16,7 @@ USER root
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
     automake \
+    autoconf \
     libblas-dev \
     liblapack-dev \
     libatlas-base-dev
@@ -23,7 +24,7 @@ RUN apt-get update && \
 
 # R pkgs to install
 
-ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'dowser', 'Seurat', 'scRepertoire', 'fastcluster', 'corrplot')"
+ARG PKGS_R="c('shazam', 'tigger', 'scoper', 'dowser', 'SeuratObject', 'Seurat', 'anndata', 'fastcluster', 'corrplot', 'circlize')"
 
 
 # scripts to install R pkgs
@@ -34,63 +35,64 @@ COPY "${SCRIPT_R_IMM}" .
 ARG SCRIPT_R_SEURAT="wu_cimm_seurat.R"
 COPY "${SCRIPT_R_SEURAT}" .
 
-ARG SCRIPT_R_BIOCONDUCTOR="wu_cimm_bioconductor_v0.2.R"
-COPY "${SCRIPT_R_BIOCONDUCTOR}" .
-
 ARG SCRIPT_R_OTHER="wu_cimm_other.R"
 COPY "${SCRIPT_R_OTHER}" .
 
 # specify versions of tools
 
-ARG VERSION_CHANGEO="1.2.0"
+ARG VERSION_CHANGEO="1.3.0"
 
-ARG VERSION_SHAZAM="1.1.0"
-ARG VERSION_TIGGER="1.0.0"
-ARG VERSION_SCOPER="1.2.0"
-ARG VERSION_DOWSER="0.1.0"
+ARG VERSION_SHAZAM="1.2.0"
+ARG VERSION_TIGGER="1.1.0"
+ARG VERSION_SCOPER="1.3.0"
+ARG VERSION_DOWSER="2.1.0"
 
-ARG VERSION_SCANPY="1.8.2"
-ARG VERSION_SCIKIT_MISC="0.1.4"
+ARG VERSION_MATRIX="1.6-5"
+ARG VERSION_CIRCLIZE="0.4.16"
+
+ARG VERSION_SCANPY="1.9.8"
+ARG VERSION_SCIKIT_MISC="0.3.1"
+ARG VERSION_ANNDATA_PYTHON="0.10.5.post1"
 # multicore tsne won't install (docker or mac); deprecated as of scanpy 1.8.0
 #ARG VERSION_MULTICORE_TSNE="0.1"
-ARG VERSION_SEURAT="4.0.6"
+
+ARG VERSION_SEURAT="5.0.1"
+ARG VERSION_SEURATOBJECT="5.0.1"
+ARG VERSION_ANNDATA_R="0.7.5.6"
 
 # no good way to directly control the version of a Bioconductor pkg installed by BiocManager
 # such pkg version is associated with the Bioconductor version itself, which can be specified via BiocManager::install
 #* Bioconductor 3.14 contains scRepertoire 1.4.0 (as of 2021-12-22)
-ARG VERSION_BIOCONDUCTOR="3.14"
+ARG VERSION_BIOCONDUCTOR="3.18"
 
 ARG VERSION_PHYLIP="3.697"
-ARG VERSION_IGPHYML="1.1.3"
 
+ARG VERSION_IGPHYML="2.0.0"
+ARG URL_IGPHYML="https://bitbucket.org/kleinstein/igphyml/get/874f9fc3a718c8655e0faf784281e4403bda5270.tar.gz"
 
-#* note: need to tar -zcvf from julianqz/ubuntu:main 
-#*       apparently tar.gz created by tar on MacOS did not work
-
-#* tigger with bug fix
-ARG SOURCE_TIGGER="tigger_${VERSION_TIGGER}_fix.tar.gz"
-COPY "${SOURCE_TIGGER}" .
 
 # Install R pkgs
 
-# ~414s
+# update Matrix for Seurat 5.0+; requires >=1.5-0
+# 150s
+RUN R -e "devtools::install_version('Matrix', version='${VERSION_MATRIX}', repos='http://cran.us.r-project.org')"
+
+# ~370s
 RUN Rscript "${SCRIPT_R_IMM}" \
     "${VERSION_SHAZAM}" "${VERSION_TIGGER}" "${VERSION_SCOPER}" "${VERSION_DOWSER}" \
-    && rm "${SCRIPT_R_IMM}" "${SOURCE_TIGGER}"
+    && rm "${SCRIPT_R_IMM}"
 
-# ~2100s
-RUN Rscript "${SCRIPT_R_SEURAT}" "${VERSION_SEURAT}" && rm "${SCRIPT_R_SEURAT}"
+# ~1500s
+RUN Rscript "${SCRIPT_R_SEURAT}" \
+    "${VERSION_SEURATOBJECT}" "${VERSION_SEURAT}" "${VERSION_ANNDATA_R}" \
+    && rm "${SCRIPT_R_SEURAT}"
 
-# scRepertoire from Bioconductor
-# do this after Seurat as Seurat is a dependency
-# ~200s
-RUN Rscript "${SCRIPT_R_BIOCONDUCTOR}" "${VERSION_BIOCONDUCTOR}" && rm "${SCRIPT_R_BIOCONDUCTOR}"
-
-# ~10s
+# ~15s
 RUN Rscript "${SCRIPT_R_OTHER}" \
     "fastcluster" "corrplot" \
     && rm "${SCRIPT_R_OTHER}"
 
+RUN R -e "devtools::install_version('circlize', version='${VERSION_CIRCLIZE}', repos='http://cran.us.r-project.org')"
 
 # Install Python libraries
 
@@ -100,13 +102,15 @@ RUN pip install "scanpy[leiden]==${VERSION_SCANPY}"
 
 RUN pip install "scikit-misc==${VERSION_SCIKIT_MISC}"
 
+RUN pip install "anndata==${VERSION_ANNDATA_PYTHON}"
+
 #RUN pip install "cmake"
 #RUN pip install "MulticoreTSNE==${VERSION_MULTICORE_TSNE}"
 
 
 # install igphyml
 RUN wget -q --show-progress --no-check-certificate \
-    https://bitbucket.org/kleinstein/igphyml/get/${VERSION_IGPHYML}.tar.gz -O igphyml-${VERSION_IGPHYML}.tar.gz \
+    ${URL_IGPHYML} -O igphyml-${VERSION_IGPHYML}.tar.gz \
     && mkdir -p /usr/local/bin/igphyml \
     && tar -zxf igphyml-${VERSION_IGPHYML}.tar.gz -C /usr/local/bin/igphyml --strip-components 1 \
     && (cd /usr/local/bin/igphyml && ./make_phyml_blas_omp) \
@@ -115,17 +119,12 @@ RUN wget -q --show-progress --no-check-certificate \
 
 # install phylip
 RUN wget -q --show-progress --no-check-certificate \
-    http://evolution.gs.washington.edu/phylip/download/phylip-${VERSION_PHYLIP}.tar.gz \
+    https://phylipweb.github.io/phylip/download/phylip-${VERSION_PHYLIP}.tar.gz \
     && tar -zxf phylip-${VERSION_PHYLIP}.tar.gz \
     && (cd phylip-${VERSION_PHYLIP}/src && make -f Makefile.unx install CFLAGS='-fcommon') \
     && mkdir -p /usr/local/bin/phylip \
     && mv phylip-${VERSION_PHYLIP}/exe/* /usr/local/bin/phylip \
     && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
-
-
-ARG SCRIPT_R_SEURAT_2="wu_cimm_seurat_additional.R"
-COPY "${SCRIPT_R_SEURAT_2}" .
-RUN Rscript "${SCRIPT_R_SEURAT_2}" && rm "${SCRIPT_R_SEURAT_2}"
 
 
 # Setup environment
@@ -152,6 +151,7 @@ RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     MakeDb.py --version >> "${PATH_INFO}" && \
     echo "- Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
     echo "- scikit-misc: ${VERSION_SCIKIT_MISC}" >> "${PATH_INFO}" && \
+    echo "- anndata (python): ${VERSION_ANNDATA_PYTHON}" >> "${PATH_INFO}" && \
     #echo "- MulticoreTSNE: ${VERSION_MULTICORE_TSNE}" >> "${PATH_INFO}" && \
     echo "- PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
     echo "  " $(which dnapars) >> "${PATH_INFO}" && \

@@ -5,10 +5,11 @@
 
 # Bioconductor release version specified via command line
 ARGS = commandArgs(trailingOnly=T)
-stopifnot(length(ARGS)==1)
 
 # Bioconductor pkg to be installed
 PACKAGES = c("scRepertoire")
+
+stopifnot(length(ARGS)==length(PACKAGES))
 
 for (pkg in PACKAGES) {
 
