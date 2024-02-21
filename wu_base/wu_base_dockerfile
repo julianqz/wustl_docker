@@ -4,8 +4,11 @@
 #ARG DIGEST="sha256:2eac078be835b6b2311e6cf034ffef355c7addb41313f200dded9ed963055c43"
 
 # v0.2, tag notebook-6.4.5
-ARG DIGEST="sha256:f160d412229129d9841a2c68df1bd7669912f17d564656ce9910ccd856145342"
+#ARG DIGEST="sha256:f160d412229129d9841a2c68df1bd7669912f17d564656ce9910ccd856145342"
 
+# v0.3, tag notebook-6.5.4, linux/amd64 
+# Do NOT use the tag for arm64 (took 20307.9s to install R dependencies)
+ARG DIGEST="sha256:6f0ffaed2f0a36fee7dc3a7f762c44cb933e3348ed9aa23ec3bd22b840241b3e"
 
 ARG BASE_CONTAINER="jupyter/datascience-notebook@${DIGEST}"
 
@@ -17,11 +20,21 @@ LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
 
 USER root
 
+# v0.3
+# In order to compile igraph from source, needed to install GLPK C library
+#   https://r.igraph.org/articles/installation-troubleshooting#cannot-compile-igraph-from-sources-on-linux
+#   and on top of that a conda-related solution from
+#   https://stackoverflow.com/questions/78004328/trouble-installing-an-r-package-fatal-error-libxml-globals-h-no-such-file-or
+
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install \
     tree \
     less \
-    vim
+    vim \
+    build-essential gfortran \
+    libglpk-dev libxml2-dev glpk-utils && \
+    conda install -y -c conda-forge glpk gmp && \
+    ln -s /opt/conda/include/libxml2/libxml /opt/conda/include/
 
 # Got an error with prestor: `Tool(s) not installed or not in PATH: pdfcrop`
 # Couldn't `tlmgr install pdfcrop` due to texlive version outdated in jupyter/datasciece-notebook (appears to a hassle to upgrade)
@@ -35,7 +48,10 @@ COPY "pdfcrop" "/usr/local/bin"
 #ARG VERSION_ALAKAZAM="1.1.0"
 
 # v0.2
-ARG VERSION_ALAKAZAM="1.2.0"
+#ARG VERSION_ALAKAZAM="1.2.0"
+
+# v0.3
+ARG VERSION_ALAKAZAM="1.3.0"
 
 # v0.1
 #* As of 2021-04-21, later version of knitr (1.32) appears to cause issue with prestor
@@ -44,24 +60,43 @@ ARG VERSION_ALAKAZAM="1.2.0"
 #ARG VERSION_KNITR="1.31"
 
 # v0.2
-ARG VERSION_KNITR="1.32"
+#ARG VERSION_KNITR="1.32"
+
+# v0.3
+ARG VERSION_KNITR="1.45"
 
 # variables listing R libraries
 
-ARG PKGS_R="c('alakazam', 'BiocManager', 'Biostrings', 'GenomicAlignments', 'IRanges', 'knitr')"
+ARG PKGS_R="c('alakazam', 'BiocManager', 'Biostrings', 'GenomicAlignments', 'IRanges', 'knitr', 'igraph')"
 
 # script to install R dependencies and alakazam
 
-ARG SCRIPT_R="wu_base_r.R"
+# v0.[12]
+#ARG SCRIPT_R="wu_base_r.R"
+
+# v0.3
+ARG SCRIPT_R_1="wu_base_r_1.R"
+ARG SCRIPT_R_2="wu_base_r_2.R"
 
 # run from within the same directory containing this Dockerfile
 
-COPY "${SCRIPT_R}" .
+# v0.[12]
+#COPY "${SCRIPT_R}" .
+
+# v0.3
+COPY "${SCRIPT_R_1}" .
+COPY "${SCRIPT_R_2}" .
 
 # install R dependencies and alakazam
-# ~790s
 
-RUN Rscript "${SCRIPT_R}" "${VERSION_ALAKAZAM}" "${VERSION_KNITR}" && rm "${SCRIPT_R}"
+# v0.[12]
+# ~790s
+#RUN Rscript "${SCRIPT_R}" "${VERSION_ALAKAZAM}" "${VERSION_KNITR}" && rm "${SCRIPT_R}"
+
+# v0.3: 650s+700s
+
+RUN Rscript "${SCRIPT_R_1}" && rm "${SCRIPT_R_1}"
+RUN Rscript "${SCRIPT_R_2}" "${VERSION_ALAKAZAM}" "${VERSION_KNITR}" && rm "${SCRIPT_R_2}"
 
 # Switch back to jovyan to avoid accidental container runs as root
 
@@ -75,6 +110,7 @@ ARG PATH_INFO="work/docker_build_info.txt"
 RUN echo "--- wu_base ---" > "${PATH_INFO}" && \
 	date >> "${PATH_INFO}" && \
 	python -V >> "${PATH_INFO}" && \
+	Rscript --version >> "${PATH_INFO}" && \
 	echo "- pdfcrop:" >> "${PATH_INFO}" && \
 	echo $(which pdfcrop) >> "${PATH_INFO}" && \
 	Rscript -e "version[['version.string']]" >> "${PATH_INFO}" && \
