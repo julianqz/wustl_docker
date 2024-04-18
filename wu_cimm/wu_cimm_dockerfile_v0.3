@@ -104,6 +104,9 @@ RUN pip install "scikit-misc==${VERSION_SCIKIT_MISC}"
 
 RUN pip install "anndata==${VERSION_ANNDATA_PYTHON}"
 
+ARG VERSION_MUON="0.1.6"
+RUN pip install "muon==${VERSION_MUON}"
+
 #RUN pip install "cmake"
 #RUN pip install "MulticoreTSNE==${VERSION_MULTICORE_TSNE}"
 
@@ -152,6 +155,7 @@ RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     echo "- Scanpy: ${VERSION_SCANPY}" >> "${PATH_INFO}" && \
     echo "- scikit-misc: ${VERSION_SCIKIT_MISC}" >> "${PATH_INFO}" && \
     echo "- anndata (python): ${VERSION_ANNDATA_PYTHON}" >> "${PATH_INFO}" && \
+    echo "- muon: ${VERSION_MUON}" >> "${PATH_INFO}" && \
     #echo "- MulticoreTSNE: ${VERSION_MULTICORE_TSNE}" >> "${PATH_INFO}" && \
     echo "- PHYLIP: ${VERSION_PHYLIP}" >> "${PATH_INFO}" && \
     echo "  " $(which dnapars) >> "${PATH_INFO}" && \
