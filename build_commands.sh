@@ -82,6 +82,12 @@
 #               circlize 0.4.16
 #               IgPHYML 2.0.0
 #       0.3.1   muon 0.1.6
+#       0.3.2   Matrix.utils 0.9.8
+#               pheatmap 1.0.12
+#               SingleCellExperiment 1.24.0
+#               edgeR 4.0.16
+#               DESeq2 1.42.1
+#               apeglm 1.24.0
 
 # ref   0.1.x   igblastn 1.17.1
 #       0.1.0   IMGT references (standard): release202113-2
@@ -169,10 +175,10 @@ docker build --progress=plain --file wu_presto/wu_presto_dockerfile --tag julian
 
 docker push julianqz/wu_presto:main_0.1.1
 
-docker build --progress=plain --file wu_cimm/wu_cimm_dockerfile_v0.3 --tag julianqz/wu_cimm:main_0.3.1 \
+docker build --progress=plain --file wu_cimm/wu_cimm_dockerfile_v0.3 --tag julianqz/wu_cimm:main_0.3.2 \
 	--build-arg BASE_CONTAINER="wu_base:main_0.3.0" ./wu_cimm
 
-docker push julianqz/wu_cimm:main_0.3.1
+docker push julianqz/wu_cimm:main_0.3.2
 
 # imgt refs
 
@@ -193,10 +199,10 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_re
 docker push julianqz/wu_presto:ref_0.1.1
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
-	--tag julianqz/wu_cimm:ref_0.3.1 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.1" \
+	--tag julianqz/wu_cimm:ref_0.3.2 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.2" \
 	"/Users/jqz/Dropbox/"
 
-docker push julianqz/wu_cimm:ref_0.3.1
+docker push julianqz/wu_cimm:ref_0.3.2
 
 # add lsf
 
@@ -204,11 +210,11 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/docke
 	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/wu_cimm:ref_0.3.1_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.1" .
+	--tag julianqz/wu_cimm:ref_0.3.2_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.2" .
 
 docker push julianqz/wu_presto:ref_0.1.1_lsf
 
-docker push julianqz/wu_cimm:ref_0.3.1_lsf
+docker push julianqz/wu_cimm:ref_0.3.2_lsf
 
 
 
