@@ -129,6 +129,30 @@ RUN wget -q --show-progress --no-check-certificate \
     && mv phylip-${VERSION_PHYLIP}/exe/* /usr/local/bin/phylip \
     && rm -r phylip-${VERSION_PHYLIP}.tar.gz phylip-${VERSION_PHYLIP}
 
+# additional R pkgs
+
+ARG URL_CRAN_ARCHIVE_MTX_UTILS="https://cran.r-project.org/src/contrib/Archive/Matrix.utils/Matrix.utils_0.9.8.tar.gz"
+RUN R -e "remotes::install_url(url='${URL_CRAN_ARCHIVE_MTX_UTILS}', upgrade='never')"
+
+ARG VERSION_PHEATMAP="1.0.12"
+RUN R -e "install.packages('pheatmap', version='${VERSION_PHEATMAP}', repos='http://cran.us.r-project.org')"
+
+RUN cd ~
+
+ARG SCRIPT_R_BIOC="wu_cimm_bioconductor_v0.2.R"
+COPY "${SCRIPT_R_BIOC}" .
+
+# https://bioconductor.org/packages/3.18/BiocViews.html#___Software
+#ARG VERSION_SCE="1.24.0"
+#ARG VERSION_EDGER="4.0.16"
+#ARG VERSION_DESEQ2="1.42.1"
+#ARG VERSION_APEGLM="1.24.0"
+
+RUN Rscript "${SCRIPT_R_BIOC}" \
+    "${VERSION_BIOCONDUCTOR}" \
+    && rm "${SCRIPT_R_BIOC}"
+
+ARG PKGS_R_2="c('Matrix.utils', 'pheatmap', 'SingleCellExperiment', 'edgeR', 'DESeq2', 'apeglm')"
 
 # Setup environment
 
@@ -161,4 +185,5 @@ RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     echo "  " $(which dnapars) >> "${PATH_INFO}" && \
     echo "- IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
     echo "  " $(which igphyml) >> "${PATH_INFO}" && \
-    Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}"
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R_2})" >> "${PATH_INFO}"

@@ -7,11 +7,13 @@
 ARGS = commandArgs(trailingOnly=T)
 
 # Bioconductor pkg to be installed
-PACKAGES = c("scRepertoire")
+#PACKAGES = c("scRepertoire")
+PACKAGES = c("SingleCellExperiment", "edgeR", "DESeq2", "apeglm")
 
-stopifnot(length(ARGS)==length(PACKAGES))
 
-for (pkg in PACKAGES) {
+for (i in 1:length(PACKAGES)) {
+
+    pkg = PACKAGES[i]
 
     # `update` and `ask` deal with prompt to update installed packges
     
