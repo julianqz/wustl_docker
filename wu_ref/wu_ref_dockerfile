@@ -45,7 +45,8 @@ RUN wget -q --show-progress --no-check-certificate \
 #*
 #ARG VERSION_IMGT_1="202113-2"
 #ARG VERSION_IMGT_1="202150-3"
-ARG VERSION_IMGT_1="202405-2"
+#ARG VERSION_IMGT_1="202405-2"
+ARG VERSION_IMGT_1="202430-2"
 
 COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
      "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
@@ -58,6 +59,16 @@ COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
 ARG VERSION_IMGT_2="202011-3"
 COPY "common/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
      "/usr/local/share/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}"
+
+# 0.3.2b only
+# special case
+# H2L2 (select human VDJ + rat constant)
+# not run: `wu_ref_imgt_get.sh`
+# remove duplicates via `wu_ref_imgt_dedup.R`
+# /usr/local/share/germline_refs/H2L2
+ARG VERSION_IMGT_3="2024-08-16"
+COPY "common/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}" \
+     "/usr/local/share/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}"
 
 
 # make igblast databases
@@ -74,6 +85,13 @@ RUN "./${SCRIPT_DB}" \
 RUN "./${SCRIPT_DB}" \
     -i "/usr/local/share/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
     -v "${VERSION_IMGT_2}" \
+    -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
+    -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin"
+
+# 0.3.2b only
+RUN "./${SCRIPT_DB}" \
+    -i "/usr/local/share/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}" \
+    -v "${VERSION_IMGT_3}" \
     -o "/usr/local/share/germline_refs/igblast-${VERSION_IGBLAST_1}/database" \
     -b "/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin" \
     && rm "${SCRIPT_DB}"
@@ -94,6 +112,8 @@ RUN echo "--- wu_ref ---" >> "${PATH_INFO}" && \
     date >> "${PATH_INFO}" && \
     echo "- IMGT references (standard): release${VERSION_IMGT_1}" >> "${PATH_INFO}" && \
     echo "- IMGT references (C57BL6): release${VERSION_IMGT_2}" >> "${PATH_INFO}" && \
+    # 0.3.2b only
+    echo "- IMGT references (H2L2): curated based on IMGT/GENE-DB ${VERSION_IMGT_3}" >> "${PATH_INFO}" && \
     echo "- IgBLAST:" >> "${PATH_INFO}" && \
     echo $(/usr/local/bin/igblast-${VERSION_IGBLAST_1}/bin/igblastn -version | head -n 1) >> "${PATH_INFO}"
 
