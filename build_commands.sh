@@ -99,9 +99,15 @@
 #               IMGT references (standard): release202150-3
 #               IMGT references (C57BL6): release202011-3
 #  
-#       0.3.x  igblastn 1.22.0
-#              IMGT references (standard): release202405-2
-#              IMGT references (C57BL6): release202011-3
+#       0.3.[12]igblastn 1.22.0
+#               IMGT references (standard): release202405-2
+#               IMGT references (C57BL6): release202011-3
+# 
+#       0.3.2b  igblastn 1.22.0
+#               IMGT references (standard): release202430-2 + 
+#                 artificially spliced constant from GENE/DB (hs IG[HKL]C; mm IGHC only)
+#               IMGT references (C57BL6): release202011-3 (NO spliced constant added yet)
+#               IMGT references (H2L2): GENE-DB 2024-08-16 (incl. spliced constant)
 
 # ref_lsf       added LSF env variable for scanpy to work on RIS
 
@@ -188,7 +194,17 @@ docker push julianqz/wu_cimm:main_0.3.2
 	-c "/Users/jqz/Dropbox/common/germline_refs/imgt_download.log" \
 	-d true
 
-Rscript ./wu_ref/wu_ref_imgt_dedup.R "202113-2" #*
+# 2024-09-14
+# manually downlaoded, from:
+#  - https://imgt.org/vquest/refseqh.html#refdir2
+#      "Constant gene artificially spliced exons sets"
+# As: 
+#  - imgt_select/IMGT_vquest_release202430-2/Homo_sapiens/IG/IG[HKL]C.fasta
+#  - imgt_select/IMGT_vquest_release202430-2/Mus_musculus/IG/IGHC.fasta (IGKC or IGLC not avail.)
+# The actual sequences are from: IMGT/GENE-DB program version: 3.1.41 (01 August 2024)
+
+
+Rscript ./wu_ref/wu_ref_imgt_dedup.R "202430-2" #*
 
 # note context
 
@@ -199,10 +215,10 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_re
 docker push julianqz/wu_presto:ref_0.1.1
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
-	--tag julianqz/wu_cimm:ref_0.3.2 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.2" \
+	--tag julianqz/wu_cimm:ref_0.3.2b --build-arg BASE_CONTAINER="wu_cimm:main_0.3.2" \
 	"/Users/jqz/Dropbox/"
 
-docker push julianqz/wu_cimm:ref_0.3.2
+docker push julianqz/wu_cimm:ref_0.3.2b
 
 # add lsf
 
@@ -210,11 +226,11 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/docke
 	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/wu_cimm:ref_0.3.2_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.2" .
+	--tag julianqz/wu_cimm:ref_0.3.2b_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.2b" .
 
 docker push julianqz/wu_presto:ref_0.1.1_lsf
 
-docker push julianqz/wu_cimm:ref_0.3.2_lsf
+docker push julianqz/wu_cimm:ref_0.3.2b_lsf
 
 
 
