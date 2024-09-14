@@ -49,7 +49,8 @@ cd "${PATH_DB}"
 
 # within each species and within each chain, by segment
 
-for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6; do 
+#for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6; do 
+for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6 H2L2; do # 0.3.2b
 
     # TODO: generalize to any species present in ${PATH_GERM}
 
@@ -59,6 +60,8 @@ for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6; do
         SP="mm"
     elif [[ ${SPECIES} == "Mus_musculus_C57BL6" ]]; then
         SP="c57bl6"
+    elif [[ ${SPECIES} == "H2L2" ]]; then
+        SP="h2l2"
     fi
 
     PATH_SPECIES="${PATH_GERM}/${SPECIES}/"
@@ -73,23 +76,35 @@ for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6; do
             # if chain directory present
             if [[ -d "${PATH_IMGT}" ]] ; then
 
-                for SEGMENT in V D J; do
+                #for SEGMENT in V D J; do
+                for SEGMENT in V D J C; do # 0.3.2b
 
-                    # concat all fasta's belonging to the same segment type (all V; all D; all J)
+                    # concat all fasta's belonging to the same segment type (all V; all D; all J; all C)
 
-                    NAME_CAT="concat_no_dup_${SEGMENT}.fasta"
+                    # ${CHAIN}?${SEGMENT} captures, eg. IG[HKL]V
 
-                    cat "${PATH_IMGT}"${CHAIN}?${SEGMENT}_no_dup.fasta > "${PATH_IMGT}${NAME_CAT}"
-                    
-                    # process
-                    # note version of IMGT reference in output files in igblast database/
+                    # https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
 
-                    NAME_DB="imgt_no_dup_${SP}_${CHAIN}_${SEGMENT}_${VER}"
+                    if compgen -G "${PATH_IMGT}${CHAIN}?${SEGMENT}_no_dup.fasta" > /dev/null; then
 
-                    "${PATH_BIN}/edit_imgt_file.pl" "${PATH_IMGT}${NAME_CAT}" > "${PATH_DB}/${NAME_DB}"
+                        NAME_CAT="concat_no_dup_${SEGMENT}.fasta"
 
-                    "${PATH_BIN}/makeblastdb" -parse_seqids -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
-                    
+                        cat "${PATH_IMGT}"${CHAIN}?${SEGMENT}_no_dup.fasta > "${PATH_IMGT}${NAME_CAT}"
+                        
+                        # process
+                        # note version of IMGT reference in output files in igblast database/
+
+                        NAME_DB="imgt_no_dup_${SP}_${CHAIN}_${SEGMENT}_${VER}"
+
+                        "${PATH_BIN}/edit_imgt_file.pl" "${PATH_IMGT}${NAME_CAT}" > "${PATH_DB}/${NAME_DB}"
+
+                        #"${PATH_BIN}/makeblastdb" -parse_seqids -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
+                        "${PATH_BIN}/makeblastdb" -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
+     
+                    else
+                        echo "No ${SEGMENT}_no_dup.fasta exists for ${CHAIN}; skipped"
+                    fi
+
                 done
             fi
         done
