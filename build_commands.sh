@@ -99,11 +99,11 @@
 #               IMGT references (standard): release202150-3
 #               IMGT references (C57BL6): release202011-3
 #  
-#       0.3.[12]igblastn 1.22.0
+#       0.3.[01]igblastn 1.22.0
 #               IMGT references (standard): release202405-2
 #               IMGT references (C57BL6): release202011-3
 # 
-#       0.3.2b  igblastn 1.22.0
+#       0.3.2   igblastn 1.22.0
 #               IMGT references (standard): release202430-2 + 
 #                 artificially spliced constant from GENE/DB (hs IG[HKL]C; mm IGHC only)
 #               IMGT references (C57BL6): release202011-3 (NO spliced constant added yet)
@@ -170,6 +170,8 @@
 
 # use --progress=plain with `docker build` for non-truncated output
 
+# use --no-cache for force a clean build
+
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
 docker build --progress=plain --file wu_base/wu_base_dockerfile --tag julianqz/wu_base:main_0.1.0 ./wu_base
@@ -194,8 +196,8 @@ docker push julianqz/wu_cimm:main_0.3.2
 	-c "/Users/jqz/Dropbox/common/germline_refs/imgt_download.log" \
 	-d true
 
-# 2024-09-14
-# manually downlaoded, from:
+# 2024-09-14 (cimm:ref_0.3.2)
+# Manually downlaoded, from:
 #  - https://imgt.org/vquest/refseqh.html#refdir2
 #      "Constant gene artificially spliced exons sets"
 # As: 
@@ -203,8 +205,17 @@ docker push julianqz/wu_cimm:main_0.3.2
 #  - imgt_select/IMGT_vquest_release202430-2/Mus_musculus/IG/IGHC.fasta (IGKC or IGLC not avail.)
 # The actual sequences are from: IMGT/GENE-DB program version: 3.1.41 (01 August 2024)
 
-
 Rscript ./wu_ref/wu_ref_imgt_dedup.R "202430-2" #*
+
+# Then, manually de-duplicated allele names in constant fasta (not IMGT accession numbers)
+#  - imgt_select/IMGT_vquest_release202430-2/Homo_sapiens/IG/IGHC_no_dup.fasta
+#  - imgt_select/IMGT_vquest_release202430-2/Mus_musculus/IG/IGHC_no_dup.fasta
+#  - C57BL6/IMGT_vquest_release202011-3/Mus_musculus_C57BL6/IG/IGHC_no_dup.fasta
+#   E.g. Two entries named IGHA1*01 ==> IGHA1*01_1, IGHA1*01_2
+#   Otherwise, will get the following error when running makeblastdb
+#     "BLAST Database creation error: Error: Duplicate seq_ids are found: 
+#      LCL|IGHA1*01"
+
 
 # note context
 
@@ -215,10 +226,10 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_re
 docker push julianqz/wu_presto:ref_0.1.1
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
-	--tag julianqz/wu_cimm:ref_0.3.2b --build-arg BASE_CONTAINER="wu_cimm:main_0.3.2" \
+	--tag julianqz/wu_cimm:ref_0.3.2 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.2" \
 	"/Users/jqz/Dropbox/"
 
-docker push julianqz/wu_cimm:ref_0.3.2b
+docker push julianqz/wu_cimm:ref_0.3.2
 
 # add lsf
 
@@ -226,11 +237,11 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/docke
 	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/wu_cimm:ref_0.3.2b_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.2b" .
+	--tag julianqz/wu_cimm:ref_0.3.2_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.2" .
 
 docker push julianqz/wu_presto:ref_0.1.1_lsf
 
-docker push julianqz/wu_cimm:ref_0.3.2b_lsf
+docker push julianqz/wu_cimm:ref_0.3.2_lsf
 
 
 
