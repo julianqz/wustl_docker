@@ -98,8 +98,13 @@ for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6 H2L2; do # 0.3.2b
 
                         "${PATH_BIN}/edit_imgt_file.pl" "${PATH_IMGT}${NAME_CAT}" > "${PATH_DB}/${NAME_DB}"
 
-                        #"${PATH_BIN}/makeblastdb" -parse_seqids -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
-                        "${PATH_BIN}/makeblastdb" -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
+                        # IMPORTANT
+                        # will get fatal errors such as the ones below if omitting -parse_seqids
+                        # - WORKER: T7 BATCH # 5 CEXCEPTION: Attempt to access NULL pointer.
+                        # - terminate called after throwing an instance of 'std::ios_base::failure[abi:cxx11]'
+                        #     what():  basic_ios::clear: iostream error
+                        
+                        "${PATH_BIN}/makeblastdb" -parse_seqids -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
      
                     else
                         echo "No ${SEGMENT}_no_dup.fasta exists for ${CHAIN}; skipped"
