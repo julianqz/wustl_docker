@@ -216,6 +216,18 @@ Rscript ./wu_ref/wu_ref_imgt_dedup.R "202430-2" #*
 #     "BLAST Database creation error: Error: Duplicate seq_ids are found: 
 #      LCL|IGHA1*01"
 
+#* Known issue as of 2024-09-15 / cimm:ref_0.3.2
+# `makeblastdb -parse_seqids` did not successfully run for human and mm TR V
+# Reason: Duplicate allele names (not IMGT accession ID) when TR[ABDG]V_no_dup.fasta's are concatenated
+#         E.g. TRAV_no_dup.fasta has: >M21626|TRAV14/DV4*01|Homo sapiens|F|V-REGION|226..515|290 nt|1| | | | |290+36=326| | |
+#              TRDV_no_dup.fasta has: >M21626|TRAV14/DV4*01|Homo sapiens|F|V-REGION|226..515|290 nt|1| | | | |290+36=326| | |
+#              (The above two entries are identical, including nucleotide seqs)
+#         `makeblastdb` reports the following error:
+#              BLAST Database creation error: Error: Duplicate seq_ids are found: 
+#              LCL|TRAV14/DV4*01 (human); LCL|TRAV13-4/DV7*01 (mm)
+# This was fixed for IG C (see above)
+# TO DO: apply similar fix to TR V
+
 
 # note context
 
