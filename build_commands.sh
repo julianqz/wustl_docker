@@ -88,6 +88,10 @@
 #               edgeR 4.0.16
 #               DESeq2 1.42.1
 #               apeglm 1.24.0
+#       0.3.3   scanpy 1.10.2
+#               anndata (python) 0.11.0rc1
+#               SeuratObject 5.0.2
+#               Seurat 5.1.0
 
 # ref   0.1.x   igblastn 1.17.1
 #       0.1.0   IMGT references (standard): release202113-2
@@ -103,7 +107,7 @@
 #               IMGT references (standard): release202405-2
 #               IMGT references (C57BL6): release202011-3
 # 
-#       0.3.2   igblastn 1.22.0
+#       0.3.[23]igblastn 1.22.0
 #               IMGT references (standard): release202430-2 + 
 #                 artificially spliced constant from GENE/DB (hs IG[HKL]C; mm IGHC only)
 #               IMGT references (C57BL6): release202011-3 (NO spliced constant added yet)
@@ -183,10 +187,10 @@ docker build --progress=plain --file wu_presto/wu_presto_dockerfile --tag julian
 
 docker push julianqz/wu_presto:main_0.1.1
 
-docker build --progress=plain --file wu_cimm/wu_cimm_dockerfile_v0.3 --tag julianqz/wu_cimm:main_0.3.2 \
+docker build --progress=plain --file wu_cimm/wu_cimm_dockerfile_v0.3 --tag julianqz/wu_cimm:main_0.3.3 \
 	--build-arg BASE_CONTAINER="wu_base:main_0.3.0" ./wu_cimm
 
-docker push julianqz/wu_cimm:main_0.3.2
+docker push julianqz/wu_cimm:main_0.3.3
 
 # imgt refs
 
@@ -238,10 +242,10 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_re
 docker push julianqz/wu_presto:ref_0.1.1
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
-	--tag julianqz/wu_cimm:ref_0.3.2 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.2" \
+	--tag julianqz/wu_cimm:ref_0.3.3 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.3" \
 	"/Users/jqz/Dropbox/"
 
-docker push julianqz/wu_cimm:ref_0.3.2
+docker push julianqz/wu_cimm:ref_0.3.3
 
 # add lsf
 
@@ -249,11 +253,11 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/docke
 	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/wu_cimm:ref_0.3.2_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.2" .
+	--tag julianqz/wu_cimm:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.3" .
 
 docker push julianqz/wu_presto:ref_0.1.1_lsf
 
-docker push julianqz/wu_cimm:ref_0.3.2_lsf
+docker push julianqz/wu_cimm:ref_0.3.3_lsf
 
 
 
