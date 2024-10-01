@@ -18,4 +18,4 @@ options(repos=REPO_CRAN)
 # install the latest development code via devtools
 #* "javh/prototype-prestor@default" doesn't work any more -- repo has changed location
 library(devtools)
-install_bitbucket("kleinstein/prestor@master")
+install_bitbucket("kleinstein/prestor@master", upgrade="never")
