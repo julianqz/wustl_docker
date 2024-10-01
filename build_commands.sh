@@ -37,6 +37,10 @@
 #
 #        0.2.0  pRESTO 0.7.0 (includes parameter to increase cd-hit-est memory limit)
 #               prestor fixed compatbility issue with knitr 1.32
+#
+#        0.3.3  pRESTO 0.7.2
+#               perstor 0.0.7
+#               knitr 1.48
 
 # cimm   0.1.0  initial
 #               changeo 1.0.2
@@ -182,10 +186,10 @@ docker build --progress=plain --file wu_base/wu_base_dockerfile --tag julianqz/w
 
 docker push julianqz/wu_base:main_0.1.0
 
-docker build --progress=plain --file wu_presto/wu_presto_dockerfile --tag julianqz/wu_presto:main_0.1.1 \
-	--build-arg BASE_CONTAINER="wu_base:main_0.1.0" ./wu_presto
+docker build --progress=plain --file wu_presto/wu_presto_dockerfile --tag julianqz/wu_presto:main_0.3.3 \
+	--build-arg BASE_CONTAINER="wu_base:main_0.3.0" ./wu_presto
 
-docker push julianqz/wu_presto:main_0.1.1
+docker push julianqz/wu_presto:main_0.3.3
 
 docker build --progress=plain --file wu_cimm/wu_cimm_dockerfile_v0.3 --tag julianqz/wu_cimm:main_0.3.3 \
 	--build-arg BASE_CONTAINER="wu_base:main_0.3.0" ./wu_cimm
@@ -236,10 +240,10 @@ Rscript ./wu_ref/wu_ref_imgt_dedup.R "202430-2" #*
 # note context
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
-	--tag julianqz/wu_presto:ref_0.1.1 --build-arg BASE_CONTAINER="wu_presto:main_0.1.1" \
+	--tag julianqz/wu_presto:ref_0.3.3 --build-arg BASE_CONTAINER="wu_presto:main_0.3.3" \
 	"/Users/jqz/Dropbox/"
 
-docker push julianqz/wu_presto:ref_0.1.1
+docker push julianqz/wu_presto:ref_0.3.3
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_cimm:ref_0.3.3 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.3" \
@@ -250,12 +254,12 @@ docker push julianqz/wu_cimm:ref_0.3.3
 # add lsf
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/wu_presto:ref_0.1.1_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.1.1" .
+	--tag julianqz/wu_presto:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.3.3" .
 
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_cimm:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.3" .
 
-docker push julianqz/wu_presto:ref_0.1.1_lsf
+docker push julianqz/wu_presto:ref_0.3.3_lsf
 
 docker push julianqz/wu_cimm:ref_0.3.3_lsf
 
