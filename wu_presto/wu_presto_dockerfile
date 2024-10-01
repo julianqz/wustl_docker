@@ -18,6 +18,11 @@ USER root
 ARG SCRIPT_PHIX="fetch_phix.sh"
 COPY "./scripts/${SCRIPT_PHIX}" .
 
+# v0.3
+# script to install captioner (removed from CRAN 2023-08-18)
+ARG SCRIPT_R_0="wu_archive.R"
+COPY "${SCRIPT_R_0}" .
+
 # script to install prestor
 
 ARG SCRIPT_R_1="wu_prestor.R"
@@ -36,7 +41,10 @@ COPY "${SCRIPT_R_1}" .
 #                   latest version of knitr is 1.37, but compatibility not tested
 # force downgrade to knitr 1.32 
 
-ARG VERSION_KNITR="1.32"
+#ARG VERSION_KNITR="1.32"
+
+# 2024-10-01
+ARG VERSION_KNITR="1.48" 
 
 ARG SCRIPT_R_2="wu_knitr.R"
 COPY "${SCRIPT_R_2}" .
@@ -49,7 +57,9 @@ COPY "${SCRIPT_R_2}" .
 # v0.1
 #ARG VERSION_PRESTO="0.6.2"
 # v0.2
-ARG VERSION_PRESTO="0.7.0"
+#ARG VERSION_PRESTO="0.7.0"
+# v0.3
+ARG VERSION_PRESTO="0.7.2"
 
 # v0.1
 #ARG VERSION_PRESTOR="0.0.6"
@@ -60,6 +70,9 @@ ARG VERSION_BLAST="2.11.0"
 ARG VERSION_CDHIT="4.8.1"
 ARG VERSION_MUSCLE="3.8.425"
 ARG VERSION_VSEARCH="2.13.6"
+
+# install captioner
+RUN Rscript "${SCRIPT_R_0}" && rm "${SCRIPT_R_0}"
 
 
 # Install prestor
@@ -151,7 +164,7 @@ RUN mkdir -p /usr/local/share/phix \
 
 # Install presto
 
-# v0.2
+# v0.2/3
 RUN pip install "presto==${VERSION_PRESTO}"
 
 #  v0.1
