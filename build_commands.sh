@@ -96,6 +96,7 @@
 #               anndata (python) 0.11.0rc1
 #               SeuratObject 5.0.2
 #               Seurat 5.1.0
+#               presto 1.0.0
 
 # ref   0.1.x   igblastn 1.17.1
 #       0.1.0   IMGT references (standard): release202113-2

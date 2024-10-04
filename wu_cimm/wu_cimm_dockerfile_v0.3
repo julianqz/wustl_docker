@@ -154,6 +154,16 @@ RUN Rscript "${SCRIPT_R_BIOC}" \
 
 ARG PKGS_R_2="c('Matrix.utils', 'pheatmap', 'SingleCellExperiment', 'edgeR', 'DESeq2', 'apeglm')"
 
+# presto (for seurat)
+
+ARG SCRIPT_R_SEURAT_ADD="wu_cimm_seurat_additional.R"
+COPY "${SCRIPT_R_SEURAT_ADD}" .
+
+RUN Rscript "${SCRIPT_R_SEURAT_ADD}" \
+    && rm "${SCRIPT_R_SEURAT_ADD}"
+
+ARG PKGS_R_3="c('presto')"
+
 # Setup environment
 
 ENV PATH="${PATH}:/usr/local/bin/phylip:/usr/local/bin/igphyml/src"
@@ -186,4 +196,5 @@ RUN echo "--- wu_cimm ---" >> "${PATH_INFO}" && \
     echo "- IgPHYML: ${VERSION_IGPHYML}" >> "${PATH_INFO}" && \
     echo "  " $(which igphyml) >> "${PATH_INFO}" && \
     Rscript -e "versions::installed.versions(pkgs=${PKGS_R})" >> "${PATH_INFO}" && \
-    Rscript -e "versions::installed.versions(pkgs=${PKGS_R_2})" >> "${PATH_INFO}"
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R_2})" >> "${PATH_INFO}" && \
+    Rscript -e "versions::installed.versions(pkgs=${PKGS_R_3})" >> "${PATH_INFO}"
