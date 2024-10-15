@@ -81,7 +81,12 @@ def spotInconsistency(inputFasta):
 
             # if matched
             #* assumes PRCONS being a substring of CREGION if consistent
-            if value_1 in value_2:
+            
+            #* special handling for NEB NextImmune mouse kit IgG primers
+            #* IGHG-a and IGHG-b pairing is ok
+            bool_sp = "IGHG" in value_1 and "IGHG" in value_2
+
+            if value_1 in value_2 or bool_sp:
                 consistentLines.append(curHeader)
 
                 for seqIdx in range(idx+1, nextIdx):
