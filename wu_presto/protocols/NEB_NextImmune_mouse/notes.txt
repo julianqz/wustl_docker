@@ -1,0 +1,48 @@
+IS_Mouse_R1_Primers_IG.fasta
+
+https://imgt.org/vquest/refseqh.html#refdir2
+Constant gene artificially spliced exons sets
+IGHC, F+ORF+in-frame P, Mouse
+
+IGHG-a, reverse complement (partial)
+GTCTATCCACTGG
+
+IGHG1
+IGHG2A
+IGHG2B
+IGHG2C
+
+IGHG-b, reverse complement (full)
+GTCTATCCCTTGGTCCCTGG
+
+IGHG3
+
+IGHG-a internal, reverse complement
+CAGGCCAAAACGACAC
+
+no match
+
+
+IGHG-b internal, reverse complement (partial)
+AACAACAGCCCCATC
+
+IGHG2A, 2C, 3
+
+grep -e "Mouse-IGHG-b, Mouse-IGHG-a-InternalC" b*/b*-CR_primers-pass_inconsistent_count.txt
+grep -e "Mouse-IGHG-a, Mouse-IGHG-b-InternalC" b*/b*-CR_primers-pass_inconsistent_count.txt
+
+b01/b01-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-b, Mouse-IGHG-a-InternalC, 3
+b04/b04-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-b, Mouse-IGHG-a-InternalC, 3
+b05/b05-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-b, Mouse-IGHG-a-InternalC, 5
+b07/b07-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-b, Mouse-IGHG-a-InternalC, 9
+b08/b08-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-b, Mouse-IGHG-a-InternalC, 3
+
+b03/b03-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-a, Mouse-IGHG-b-InternalC, 3019 m10
+b04/b04-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-a, Mouse-IGHG-b-InternalC, 5
+b05/b05-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-a, Mouse-IGHG-b-InternalC, 14
+b06/b06-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-a, Mouse-IGHG-b-InternalC, 16
+b07/b07-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-a, Mouse-IGHG-b-InternalC, 16
+b08/b08-CR_primers-pass_inconsistent_count.txt:Mouse-IGHG-a, Mouse-IGHG-b-InternalC, 712  m59
+
+none for both after re-run with updated remove_inconsistent.py
+
