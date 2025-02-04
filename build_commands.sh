@@ -181,6 +181,10 @@
 
 # use --no-cache for force a clean build
 
+# IMPORTANT: If running from macbook with Apple M* chip (arm64), add --platform linux/amd64 
+#            (otherwise will get "no matching manifest for linux/amd64 in the manifest list entries" 
+#             when pulling on RIS)
+
 cd "/Users/jqz/Dropbox/wustl/code/docker/"
 
 docker build --progress=plain --file wu_base/wu_base_dockerfile --tag julianqz/wu_base:main_0.1.0 ./wu_base
@@ -246,7 +250,7 @@ docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_re
 
 docker push julianqz/wu_presto:ref_0.3.3
 
-docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_cimm:ref_0.3.3 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.3" \
 	"/Users/jqz/Dropbox/"
 
@@ -257,7 +261,7 @@ docker push julianqz/wu_cimm:ref_0.3.3
 docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_presto:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.3.3" .
 
-docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_cimm:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.3" .
 
 docker push julianqz/wu_presto:ref_0.3.3_lsf
