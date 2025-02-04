@@ -64,7 +64,7 @@ COPY --chmod=777 "common/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_
 # special case
 # H2L2 (select human VDJ + rat constant)
 # not run: `wu_ref_imgt_get.sh`
-# not run: remove duplicates via `wu_ref_imgt_dedup.R`
+# remove duplicates via `wu_ref_imgt_dedup.R`
 # /usr/local/share/germline_refs/H2L2
 ARG VERSION_IMGT_3="2024-08-16"
 COPY --chmod=777 "common/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}" \
