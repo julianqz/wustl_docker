@@ -48,7 +48,7 @@ RUN wget -q --show-progress --no-check-certificate \
 #ARG VERSION_IMGT_1="202405-2"
 ARG VERSION_IMGT_1="202430-2"
 
-COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
+COPY --chmod=777 "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
      "/usr/local/share/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}"
 
 # special case
@@ -57,7 +57,7 @@ COPY "common/germline_refs/imgt_select/IMGT_vquest_release${VERSION_IMGT_1}" \
 # remove duplicates via `wu_ref_imgt_dedup.R`
 # /usr/local/share/germline_refs/C57BL6
 ARG VERSION_IMGT_2="202011-3"
-COPY "common/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
+COPY --chmod=777 "common/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
      "/usr/local/share/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}"
 
 
@@ -67,7 +67,7 @@ COPY "common/germline_refs/C57BL6/IMGT_vquest_release${VERSION_IMGT_2}" \
 # not run: remove duplicates via `wu_ref_imgt_dedup.R`
 # /usr/local/share/germline_refs/H2L2
 ARG VERSION_IMGT_3="2024-08-16"
-COPY "common/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}" \
+COPY --chmod=777 "common/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}" \
      "/usr/local/share/germline_refs/H2L2/IMGT_genedb_${VERSION_IMGT_3}"
 
 
