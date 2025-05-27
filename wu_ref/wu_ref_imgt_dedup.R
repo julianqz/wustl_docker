@@ -33,6 +33,8 @@ cat("Chains:", CHAINS, "\n")
 
 for (sp in SPECIES) {
     for (ch in CHAINS) {
+
+        #### individual files ####
         
         all_files = list.files(path=paste(".", sp, ch, sep="/"),
                                pattern="fasta")
@@ -113,5 +115,47 @@ for (sp in SPECIES) {
             
         }
         
+        #### by segment ####
+        
+        # as of 2025-05-23, only done for TR
+        
+        if (ch=="TR") {
+            
+            vec_no_dup_files = list.files(path=paste(".", sp, ch, sep="/"),
+                                          pattern="_no_dup.fasta")
+            
+            for (seg in c("V", "D", "J", "C")) {
+                
+                cat("segment:", seg, "\n")
+                vec_no_dup_seg_files = vec_no_dup_files[grepl(pattern=paste0("", seg, "_no_dup.fasta"), 
+                                                              x=vec_no_dup_files, fixed=T)]
+                
+                lst_no_dup_seg = vector(mode="list", length=length(vec_no_dup_seg_files))
+                
+                for (i_file in 1:length(vec_no_dup_seg_files)) {
+                    
+                    i_f = vec_no_dup_seg_files[i_file]
+                    cat(i_f, "\n")
+                    
+                    i_file_name = paste0(paste(".", sp, ch, sep="/"), "/", i_f)
+                    lst_no_dup_seg[[i_file]] = read_multiline_fasta(i_file_name)
+                }
+                
+                vec_no_dup_seg_all = do.call(c, lst_no_dup_seg)
+                
+                vec_no_dup_seg_all_dedup = remove_duplicate_fasta(vec_fasta=vec_no_dup_seg_all)
+                
+                i_fn_export = paste0("concat_no_dup_", seg, ".fasta")
+                i_path_export = paste0(paste(".", sp, ch, sep="/"), "/", i_fn_export)
+                
+                cat("Exported:", i_path_export, "\n")
+                export_fasta(sequences=vec_no_dup_seg_all_dedup, 
+                             headers=names(vec_no_dup_seg_all_dedup),
+                             add_header_symbol=F,
+                             filename=i_path_export)
+            }
+            
+        }
+   
     }
 }
