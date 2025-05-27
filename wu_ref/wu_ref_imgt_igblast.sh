@@ -79,35 +79,48 @@ for SPECIES in Homo_sapiens Mus_musculus Mus_musculus_C57BL6 H2L2; do # 0.3.2b
                 #for SEGMENT in V D J; do
                 for SEGMENT in V D J C; do # 0.3.2b
 
-                    # concat all fasta's belonging to the same segment type (all V; all D; all J; all C)
+                    NAME_CAT="concat_no_dup_${SEGMENT}.fasta"
 
-                    # ${CHAIN}?${SEGMENT} captures, eg. IG[HKL]V
+                    # note version of IMGT reference in output files in igblast database/
+                    NAME_DB="imgt_no_dup_${SP}_${CHAIN}_${SEGMENT}_${VER}"
 
-                    # https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
+                    if [ -s "${PATH_IMGT}${NAME_CAT}" ]; then
 
-                    if compgen -G "${PATH_IMGT}${CHAIN}?${SEGMENT}_no_dup.fasta" > /dev/null; then
-
-                        NAME_CAT="concat_no_dup_${SEGMENT}.fasta"
-
-                        cat "${PATH_IMGT}"${CHAIN}?${SEGMENT}_no_dup.fasta > "${PATH_IMGT}${NAME_CAT}"
-                        
-                        # process
-                        # note version of IMGT reference in output files in igblast database/
-
-                        NAME_DB="imgt_no_dup_${SP}_${CHAIN}_${SEGMENT}_${VER}"
+                        # if concatenated file already exists (produced by wu_ref_imgt_dedup.R)
+                        echo "Using existing ${PATH_IMGT}${NAME_CAT}"
 
                         "${PATH_BIN}/edit_imgt_file.pl" "${PATH_IMGT}${NAME_CAT}" > "${PATH_DB}/${NAME_DB}"
 
-                        # IMPORTANT
-                        # will get fatal errors such as the ones below if omitting -parse_seqids
-                        # - WORKER: T7 BATCH # 5 CEXCEPTION: Attempt to access NULL pointer.
-                        # - terminate called after throwing an instance of 'std::ios_base::failure[abi:cxx11]'
-                        #     what():  basic_ios::clear: iostream error
-                        
                         "${PATH_BIN}/makeblastdb" -parse_seqids -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
-     
+
                     else
-                        echo "No ${SEGMENT}_no_dup.fasta exists for ${CHAIN}; skipped"
+
+                        # concat all fasta's belonging to the same segment type (all V; all D; all J; all C)
+
+                        # ${CHAIN}?${SEGMENT} captures, eg. IG[HKL]V
+
+                        # https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
+
+                        if compgen -G "${PATH_IMGT}${CHAIN}?${SEGMENT}_no_dup.fasta" > /dev/null; then
+
+                            echo "Performing concatenation to produce ${NAME_CAT}"
+
+                            cat "${PATH_IMGT}"${CHAIN}?${SEGMENT}_no_dup.fasta > "${PATH_IMGT}${NAME_CAT}"
+                            
+                            # process
+                            "${PATH_BIN}/edit_imgt_file.pl" "${PATH_IMGT}${NAME_CAT}" > "${PATH_DB}/${NAME_DB}"
+
+                            # IMPORTANT
+                            # will get fatal errors such as the ones below if omitting -parse_seqids
+                            # - WORKER: T7 BATCH # 5 CEXCEPTION: Attempt to access NULL pointer.
+                            # - terminate called after throwing an instance of 'std::ios_base::failure[abi:cxx11]'
+                            #     what():  basic_ios::clear: iostream error
+                            
+                            "${PATH_BIN}/makeblastdb" -parse_seqids -dbtype nucl -in "${PATH_DB}/${NAME_DB}"
+         
+                        else
+                            echo "No ${SEGMENT}_no_dup.fasta exists for ${CHAIN}; skipped"
+                        fi
                     fi
 
                 done
