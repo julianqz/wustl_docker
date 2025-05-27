@@ -212,11 +212,14 @@ docker push julianqz/wu_cimm:main_0.3.3
 # 2024-09-14 (cimm:ref_0.3.2)
 # Manually downlaoded, from:
 #  - https://imgt.org/vquest/refseqh.html#refdir2
-#      "Constant gene artificially spliced exons sets"
+#      "Constant gene artificially spliced exons sets", "F+ORF+in-frame P", "Nucleotides"
 # As: 
 #  - imgt_select/IMGT_vquest_release202430-2/Homo_sapiens/IG/IG[HKL]C.fasta
+#  - imgt_select/IMGT_vquest_release202430-2/Homo_sapiens/TR/TR[ABGD]C.fasta
 #  - imgt_select/IMGT_vquest_release202430-2/Mus_musculus/IG/IGHC.fasta (IGKC or IGLC not avail.)
+#  - imgt_select/IMGT_vquest_release202430-2/Mus_musculus/TR/TR[ABGD]C.fasta
 # The actual sequences are from: IMGT/GENE-DB program version: 3.1.41 (01 August 2024)
+
 
 Rscript ./wu_ref/wu_ref_imgt_dedup.R "202430-2" #*
 
@@ -239,12 +242,26 @@ Rscript ./wu_ref/wu_ref_imgt_dedup.R "202430-2" #*
 #              BLAST Database creation error: Error: Duplicate seq_ids are found: 
 #              LCL|TRAV14/DV4*01 (human); LCL|TRAV13-4/DV7*01 (mm)
 # This was fixed for IG C (see above)
-# TO DO: apply similar fix to TR V
+# Fixed for TR 2025-05-23:
+#     For hs and mm TR, ran "by segment" dedup
+#     Then, for mm, manually replaced the "In:" header with the "Out:" headers for the following
 
+# --------------- 11 ---------------
+#  In: >IMGT000082|TRAV14-3*04|Mus musculus_C57BL/6J|F|V-REGION|1345448..1345727|280 nt|1| | | | |280+48=328| | | ;
+# Out: >L77151|TRAV14D-3/DV8*02|Mus musculus_B10.A|F|V-REGION|279..558|280 nt|1| | | | |280+48=328| | | 
+# --------------- 13 ---------------
+#  In: >L77154|TRAV14-3*01|Mus musculus_B10.A|F|V-REGION|279..558|280 nt|1| | | | |280+48=328| | | ;
+# Out: >AC163653|TRAV14D-3/DV8*08|Mus musculus_C57BL/6J|F|V-REGION|131271..131550|280 nt|1| | | | |280+48=328| | | 
+# --------------- 26 ---------------
+#  In: >AC004096|TRAV16*01|Mus musculus_129/SvJ|F|V-REGION|14786..15075|290 nt|1| | | | |290+42=332| | | ;
+# Out: >AC163653|TRAV16D/DV11*02|Mus musculus_C57BL/6|F|V-REGION|100037..100326|290 nt|1| | | | |290+42=332| | | 
+
+
+# As of 2025-05-23, cimm 0.3.3, no TR for C57BL/6 or H2L2
 
 # note context
 
-docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
+docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
 	--tag julianqz/wu_presto:ref_0.3.3 --build-arg BASE_CONTAINER="wu_presto:main_0.3.3" \
 	"/Users/jqz/Dropbox/"
 
@@ -258,7 +275,7 @@ docker push julianqz/wu_cimm:ref_0.3.3
 
 # add lsf
 
-docker build --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
+docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
 	--tag julianqz/wu_presto:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.3.3" .
 
 docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
