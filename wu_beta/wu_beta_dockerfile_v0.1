@@ -6,6 +6,11 @@ ARG BASE_CONTAINER
 
 FROM "julianqz/${BASE_CONTAINER}"
 
+# After every `FROM` statment, all the `ARG`s get collected and are no longer available
+ARG BASE_CONTAINER
+
+#RUN echo "This is julianqz/${BASE_CONTAINER}"
+
 LABEL maintainer="Julian Zhou [jqzhou@wustl.edu]" \
       description="Beta container. Built on top of julianqz/${BASE_CONTAINER}."
 
