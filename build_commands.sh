@@ -117,6 +117,8 @@
 #                 artificially spliced constant from GENE/DB (hs IG[HKL]C; mm IGHC only)
 #               IMGT references (C57BL6): release202011-3 (NO spliced constant added yet)
 #               IMGT references (H2L2): GENE-DB 2024-08-16 (incl. spliced constant)
+#    
+#       0.3.3b  added spliced constant for C57BL6
 
 # ref_lsf       added LSF env variable for scanpy to work on RIS
 
@@ -268,10 +270,10 @@ docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/
 docker push julianqz/wu_presto:ref_0.3.3
 
 docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/wu_ref/wu_ref_dockerfile" \
-	--tag julianqz/wu_cimm:ref_0.3.3 --build-arg BASE_CONTAINER="wu_cimm:main_0.3.3" \
+	--tag julianqz/wu_cimm:ref_0.3.3b --build-arg BASE_CONTAINER="wu_cimm:main_0.3.3" \
 	"/Users/jqz/Dropbox/"
 
-docker push julianqz/wu_cimm:ref_0.3.3
+docker push julianqz/wu_cimm:ref_0.3.3b
 
 # add lsf
 
@@ -279,11 +281,11 @@ docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/
 	--tag julianqz/wu_presto:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_presto:ref_0.3.3" .
 
 docker build --platform linux/amd64 --progress=plain --file "/Users/jqz/Dropbox/wustl/code/docker/dockerfile_lsf" \
-	--tag julianqz/wu_cimm:ref_0.3.3_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.3" .
+	--tag julianqz/wu_cimm:ref_0.3.3b_lsf --build-arg BASE_CONTAINER="wu_cimm:ref_0.3.3b" .
 
 docker push julianqz/wu_presto:ref_0.3.3_lsf
 
-docker push julianqz/wu_cimm:ref_0.3.3_lsf
+docker push julianqz/wu_cimm:ref_0.3.3b_lsf
 
 
 
